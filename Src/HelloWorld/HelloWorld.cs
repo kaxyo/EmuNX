@@ -4,6 +4,8 @@ using LibHac;
 using LibHac.Common;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
+using LibHac.Tools.Fs;
+using LibHac.Tools.FsSystem;
 
 public partial class HelloWorld : Control
 {
@@ -34,5 +36,13 @@ public partial class HelloWorld : Control
 
         GD.Print(result.IsSuccess() ? "NSP has been open!" : "Couldn't open NSP");
         if (!result.IsSuccess()) return;
+
+        GD.Print("Listing contents of NSP...");
+        fs = pfs.Get;
+        foreach (DirectoryEntryEx entry in fs.EnumerateEntries())
+        {
+            GD.Print($"\t{entry.Name}");
+        }
+        GD.Print("Done!");
     }
 }
