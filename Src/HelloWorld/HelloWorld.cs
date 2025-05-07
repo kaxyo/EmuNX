@@ -41,13 +41,25 @@ public partial class HelloWorld : Control
         GD.Print(result.IsSuccess() ? "NSP has been open!" : "Couldn't open NSP");
         if (!result.IsSuccess()) return;
 
-        // Debug the NSP
-        GD.Print("Listing contents of NSP...");
+        // Search CNMT inside NSP
+        GD.Print("Searching for CNMT inside NSP...");
+        DirectoryEntryEx cnmt = null;
         IFileSystem fs = pfs.Get;
-        foreach (DirectoryEntryEx entry in fs.EnumerateEntries())
+        foreach (DirectoryEntryEx entry in fs.EnumerateEntries()) // 👀 fs.EnumerateEntries("*.nca", SearchOptions.Default).Any()
         {
-            GD.Print($"\t{entry.Name}");
+            string line = $"\t{entry.Name}";
+            if (entry.Name.EndsWith(".cnmt.nca"))
+            {
+                cnmt = entry;
+                line += " 👈";
+            }
+            ;
+            GD.Print(line);
+
         }
         GD.Print("Done!");
+
+        GD.Print(cnmt == null ? "No CNTM was found..." : "CNTM was found!");
+        if (cnmt == null) return;
     }
 }
