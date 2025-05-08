@@ -47,14 +47,14 @@ public partial class HelloWorld : Control
 
         // Search CNMT inside NSP
         GD.Print("Searching for CNMT inside NSP...");
-        DirectoryEntryEx cnmtEntry = null;
+        DirectoryEntryEx cnmtNcaEntry = null;
         IFileSystem fs = pfs.Get;
         foreach (DirectoryEntryEx entry in fs.EnumerateEntries()) // 👀 fs.EnumerateEntries("*.nca", SearchOptions.Default).Any()
         {
             string line = $"\t{entry.Name}";
             if (entry.Name.EndsWith(".cnmt.nca"))
             {
-                cnmtEntry = entry;
+                cnmtNcaEntry = entry;
                 line += " 👈";
             }
             ;
@@ -63,13 +63,13 @@ public partial class HelloWorld : Control
         }
         GD.Print("Done!");
 
-        GD.Print(cnmtEntry == null ? "No CNTM was found..." : "CNTM was found!");
-        if (cnmtEntry == null) return;
+        GD.Print(cnmtNcaEntry == null ? "No CNTM was found..." : "CNTM was found!");
+        if (cnmtNcaEntry == null) return;
 
         /* Read CNMT */
         // Prepares CNMT reader
-        using var cnmtFile = new UniqueRef<IFile>();
-        result = fs.OpenFile(ref cnmtFile.Ref, (U8Span)cnmtEntry.FullPath, OpenMode.All);
+        using var cnmtNcaFile = new UniqueRef<IFile>();
+        result = fs.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
 
         GD.Print(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
         if (!result.IsSuccess()) return;
