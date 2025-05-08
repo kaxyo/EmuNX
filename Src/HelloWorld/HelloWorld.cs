@@ -2,6 +2,7 @@ using Godot;
 
 using LibHac;
 using LibHac.Common;
+using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 using LibHac.Tools.Fs;
@@ -26,17 +27,20 @@ public partial class HelloWorld : Control
     /// <param name="path">The user's selected path</param>
     private void OnFileSelected(string path)
     {
+        Result result;
+
         // Converts the select path into the user's OS format
         string globalizedPath = ProjectSettings.GlobalizePath(path);
         GD.Print(globalizedPath);
 
+        /* Read NSP*/
         // Prepares NSP reader
         using var file = new LocalStorage(globalizedPath, System.IO.FileAccess.Read);
 
         // Starts NSP reader
         using UniqueRef<PartitionFileSystem> pfs = new UniqueRef<PartitionFileSystem>();
         pfs.Reset(new PartitionFileSystem());
-        Result result = pfs.Get.Initialize(file);
+        result = pfs.Get.Initialize(file);
 
         GD.Print(result.IsSuccess() ? "NSP has been open!" : "Couldn't open NSP");
         if (!result.IsSuccess()) return;
@@ -61,5 +65,13 @@ public partial class HelloWorld : Control
 
         GD.Print(cnmtEntry == null ? "No CNTM was found..." : "CNTM was found!");
         if (cnmtEntry == null) return;
+
+        /* Read CNMT */
+        // Prepares CNMT reader
+        using var cnmtFile = new UniqueRef<IFile>();
+        result = fs.OpenFile(ref cnmtFile.Ref, (U8Span)cnmtEntry.FullPath, OpenMode.All);
+
+        GD.Print(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
+        if (!result.IsSuccess()) return;
     }
 }
