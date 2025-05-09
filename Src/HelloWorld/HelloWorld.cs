@@ -15,7 +15,6 @@ using System.Linq;
 public partial class HelloWorld : Control
 {
     private TextEdit textEdit;
-    private FileDialog fileDialog;
 
     public override void _Ready()
     {
@@ -31,9 +30,11 @@ public partial class HelloWorld : Control
         }
 
         // Start ROM reading
-        fileDialog = GetNode<FileDialog>("FileDialog");
-        fileDialog.FileSelected += OnFileSelected;
-        fileDialog.Popup();
+        ReadRom(
+            paths[0], // NSP|XCI
+            paths[1], // PROD.KEYS
+            paths[2]  // TITLE.KEYS
+        );
     }
 
     /// <summary>
@@ -107,18 +108,16 @@ public partial class HelloWorld : Control
     /// <summary>
     /// Uses logic from https://github.com/Thealexbarney/LibHac/blob/master/src/hactoolnet/ProcessPfs.cs
     /// </summary>
-    /// <param name="path">The user's selected path</param>
-    private void OnFileSelected(string path)
+    /// <param name="romPath">Software path</param>
+    /// <param name="prodKeysPath">prod.keys path</param>
+    /// <param name="titleKeysPath">title.keys path</param>
+    private void ReadRom(string romPath, string prodKeysPath, string titleKeysPath)
     {
         Result result;
 
-        // Converts the select path into the user's OS format
-        string globalizedPath = ProjectSettings.GlobalizePath(path);
-        Log(globalizedPath);
-
         /* Read NSP*/
         // Prepares NSP reader
-        using var file = new LocalStorage(globalizedPath, System.IO.FileAccess.Read);
+        using var file = new LocalStorage(romPath, System.IO.FileAccess.Read);
 
         // Starts NSP reader
         using UniqueRef<PartitionFileSystem> pfs = new UniqueRef<PartitionFileSystem>();
