@@ -111,7 +111,8 @@ public partial class HelloWorld : Control
     /// <param name="romPath">Software path</param>
     /// <param name="prodKeysPath">prod.keys path</param>
     /// <param name="titleKeysPath">title.keys path</param>
-    private void ReadRom(string romPath, string prodKeysPath, string titleKeysPath)
+    /// <returns>True or false depending on success</returns>
+    private bool ReadRom(string romPath, string prodKeysPath, string titleKeysPath)
     {
         Result result;
 
@@ -125,7 +126,7 @@ public partial class HelloWorld : Control
         result = pfs.Get.Initialize(file);
 
         Log(result.IsSuccess() ? "NSP has been open!" : "Couldn't open NSP");
-        if (!result.IsSuccess()) return;
+        if (!result.IsSuccess()) return false;
 
         // Search CNMT inside NSP
         Log("Searching for CNMT inside NSP...");
@@ -146,7 +147,7 @@ public partial class HelloWorld : Control
         Log("Done!");
 
         Log(cnmtNcaEntry == null ? "No CNTM was found..." : "CNTM was found!");
-        if (cnmtNcaEntry == null) return;
+        if (cnmtNcaEntry == null) return false;
 
         /* Read CNMT */
         // Prepares CNMT reader
@@ -154,6 +155,8 @@ public partial class HelloWorld : Control
         result = fs.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
 
         Log(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
-        if (!result.IsSuccess()) return;
+        if (!result.IsSuccess()) return false;
+
+        return true;
     }
 }
