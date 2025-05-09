@@ -19,13 +19,14 @@ public partial class HelloWorld : Control
 
     public override void _Ready()
     {
-        GD.Print("Hello from C# to Godot :)");
+        textEdit = GetNode<TextEdit>("TextEdit");
+        Log("Hello from C# to Godot :)");
 
         // Load files used in testing
         string[] paths = LoadFilePaths(ProjectSettings.GlobalizePath("res://Target/locations.txt"));
         if (paths == null)
         {
-            GD.Print("Cannot continue without valid paths");
+            Log("Cannot continue without valid paths");
             return;
         }
 
@@ -58,12 +59,12 @@ public partial class HelloWorld : Control
     /// <returns>An array with the three paths or null if there is some error</returns>
     public string[] LoadFilePaths(string locationsPath)
     {
-        GD.Print($"Loading filePaths from: {locationsPath}");
+        Log($"Loading filePaths from: {locationsPath}");
 
         // Read raw paths from file
         if (!File.Exists(locationsPath))
         {
-            GD.Print($"File does not exist");
+            Log($"File does not exist");
             return null;
         }
 
@@ -71,7 +72,7 @@ public partial class HelloWorld : Control
 
         if (paths.Length != 3)
         {
-            GD.Print($"File does not have three lines");
+            Log($"File does not have three lines");
             return null;
         }
 
@@ -92,7 +93,7 @@ public partial class HelloWorld : Control
 
             bool pathExists = File.Exists(path);
 
-            GD.Print($"Line {lineNumber}: {type} {(pathExists ? "was" : "couldn't be")} found on {path}");
+            Log($"Line {lineNumber}: {type} {(pathExists ? "was" : "couldn't be")} found on {path}");
 
             if (!pathExists) return null;
 
@@ -113,7 +114,7 @@ public partial class HelloWorld : Control
 
         // Converts the select path into the user's OS format
         string globalizedPath = ProjectSettings.GlobalizePath(path);
-        GD.Print(globalizedPath);
+        Log(globalizedPath);
 
         /* Read NSP*/
         // Prepares NSP reader
@@ -124,11 +125,11 @@ public partial class HelloWorld : Control
         pfs.Reset(new PartitionFileSystem());
         result = pfs.Get.Initialize(file);
 
-        GD.Print(result.IsSuccess() ? "NSP has been open!" : "Couldn't open NSP");
+        Log(result.IsSuccess() ? "NSP has been open!" : "Couldn't open NSP");
         if (!result.IsSuccess()) return;
 
         // Search CNMT inside NSP
-        GD.Print("Searching for CNMT inside NSP...");
+        Log("Searching for CNMT inside NSP...");
         DirectoryEntryEx cnmtNcaEntry = null;
         IFileSystem fs = pfs.Get;
         foreach (DirectoryEntryEx entry in fs.EnumerateEntries()) // 👀 fs.EnumerateEntries("*.nca", SearchOptions.Default).Any()
@@ -140,12 +141,12 @@ public partial class HelloWorld : Control
                 line += " 👈";
             }
             ;
-            GD.Print(line);
+            Log(line);
 
         }
-        GD.Print("Done!");
+        Log("Done!");
 
-        GD.Print(cnmtNcaEntry == null ? "No CNTM was found..." : "CNTM was found!");
+        Log(cnmtNcaEntry == null ? "No CNTM was found..." : "CNTM was found!");
         if (cnmtNcaEntry == null) return;
 
         /* Read CNMT */
@@ -153,7 +154,7 @@ public partial class HelloWorld : Control
         using var cnmtNcaFile = new UniqueRef<IFile>();
         result = fs.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
 
-        GD.Print(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
+        Log(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
         if (!result.IsSuccess()) return;
     }
 }
