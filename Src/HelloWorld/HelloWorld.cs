@@ -30,11 +30,13 @@ public partial class HelloWorld : Control
         }
 
         // Start ROM reading
-        ReadRom(
+        bool success = ReadRom(
             paths[0], // NSP|XCI
             paths[1], // PROD.KEYS
             paths[2]  // TITLE.KEYS
         );
+
+        Log($"[color={(success ? "green]" : "red]")}Process ended with {(success ? "success" : "failure")}[/color]");
     }
 
     /// <summary>
