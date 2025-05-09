@@ -14,11 +14,11 @@ using System.Linq;
 
 public partial class HelloWorld : Control
 {
-    private TextEdit textEdit;
+    private RichTextLabel richTextLabel;
 
     public override void _Ready()
     {
-        textEdit = GetNode<TextEdit>("TextEdit");
+        richTextLabel = GetNode<RichTextLabel>("RichTextLabel");
         Log("Hello from C# to Godot :)");
 
         // Load files used in testing
@@ -44,7 +44,7 @@ public partial class HelloWorld : Control
     public void Log(string message)
     {
         GD.Print(message);
-        textEdit.Text += message + "\n";
+        richTextLabel.Text += message + "\n";
     }
 
     /// <summary>
