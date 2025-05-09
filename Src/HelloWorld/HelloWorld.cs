@@ -19,7 +19,7 @@ public partial class HelloWorld : Control
     public override void _Ready()
     {
         richTextLabel = GetNode<RichTextLabel>("RichTextLabel");
-        Log("Hello from C# to Godot :)");
+        Log("[outline_color=#ffffff60][outline_size=6][rainbow freq=0.5 sat=0.8 val=0.8 speed=0.5][wave]Hello from EmuNX :)[/wave][/rainbow][/outline_size][/outline_color]");
 
         // Load files used in testing
         string[] paths = LoadFilePaths(ProjectSettings.GlobalizePath("res://Target/locations.txt"));
