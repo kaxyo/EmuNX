@@ -1,5 +1,8 @@
 using Godot;
 
+using System.Collections.Generic;
+using System.IO;
+
 using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
@@ -7,6 +10,7 @@ using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
+using System.Linq;
 
 public partial class HelloWorld : Control
 {
@@ -16,9 +20,76 @@ public partial class HelloWorld : Control
     {
         GD.Print("Hello from C# to Godot :)");
 
+        // Load files used in testing
+        string[] paths = LoadFilePaths(ProjectSettings.GlobalizePath("res://Target/locations.txt"));
+        if (paths == null)
+        {
+            GD.Print("Cannot continue without valid paths");
+            return;
+        }
+
+        // Start ROM reading
         fileDialog = GetNode<FileDialog>("FileDialog");
         fileDialog.FileSelected += OnFileSelected;
         fileDialog.Popup();
+    }
+
+    /// <summary>
+    /// Loads the file paths from the test.txt file.
+    /// The file should contain three lines that are the paths to the following files:
+    /// <list type="number">
+    ///     <item>NSP|XCI</item>
+    ///     <item>PROD.KEYS</item>
+    ///     <item>TITLE.KEYS</item>
+    /// </list>
+    /// </summary>
+    /// <param name="locationsPath">The path to the file to read</param>
+    /// <returns>An array with the three paths or null if there is some error</returns>
+    public string[] LoadFilePaths(string locationsPath)
+    {
+        GD.Print($"Loading filePaths from: {locationsPath}");
+
+        // Read raw paths from file
+        if (!File.Exists(locationsPath))
+        {
+            GD.Print($"File does not exist");
+            return null;
+        }
+
+        string[] paths = File.ReadLines(locationsPath).ToArray();
+
+        if (paths.Length != 3)
+        {
+            GD.Print($"File does not have three lines");
+            return null;
+        }
+
+        // Validate paths
+        var typesAndPaths = new Dictionary<string, string>
+        {
+            { "ROM", paths[0] },
+            { "PROD.KEYS", paths[1] },
+            { "TITLE.KEYS", paths[2] }
+        };
+
+        int lineNumber = 1;
+
+        foreach (var typeAndPath in typesAndPaths)
+        {
+            string type = typeAndPath.Key;
+            string path = typeAndPath.Value;
+
+            bool pathExists = File.Exists(path);
+
+            GD.Print($"Line {lineNumber}: {type} {(pathExists ? "was" : "couldn't be")} found on {path}");
+
+            if (!pathExists) return null;
+
+            lineNumber++;
+        }
+
+        // Return paths
+        return paths;
     }
 
     /// <summary>
