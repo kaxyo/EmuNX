@@ -14,6 +14,7 @@ using System.Linq;
 
 public partial class HelloWorld : Control
 {
+    private TextEdit textEdit;
     private FileDialog fileDialog;
 
     public override void _Ready()
@@ -32,6 +33,16 @@ public partial class HelloWorld : Control
         fileDialog = GetNode<FileDialog>("FileDialog");
         fileDialog.FileSelected += OnFileSelected;
         fileDialog.Popup();
+    }
+
+    /// <summary>
+    /// Prints a message to the Godot console and UI console.
+    /// </summary>
+    /// <param name="message">The message to print</param>
+    public void Log(string message)
+    {
+        GD.Print(message);
+        textEdit.Text += message + "\n";
     }
 
     /// <summary>
