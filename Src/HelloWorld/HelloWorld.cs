@@ -11,6 +11,7 @@ using LibHac.FsSystem;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using System.Linq;
+using LibHac.Common.Keys;
 
 public partial class HelloWorld : Control
 {
@@ -117,6 +118,12 @@ public partial class HelloWorld : Control
     private bool ReadRom(string romPath, string prodKeysPath, string titleKeysPath)
     {
         Result result;
+
+        /* Read keys*/
+        //Load titlekeys
+        Log("Loading prod.keys and title.keys...");
+        KeySet keyset = new KeySet();
+        ExternalKeyReader.ReadKeyFile(keyset, prodKeysPath, titleKeysPath, null, null);
 
         /* Read NSP*/
         // Prepares NSP reader
