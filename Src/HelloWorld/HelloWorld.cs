@@ -13,6 +13,8 @@ using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using System.Linq;
 using LibHac.Common.Keys;
+using LibHac.Tools.Ncm;
+using LibHac.Tools.FsSystem.NcaUtils;
 
 public partial class HelloWorld : Control
 {
@@ -164,17 +166,37 @@ public partial class HelloWorld : Control
         }
         Log("Done!");
 
-        Log(cnmtNcaEntry == null ? "No CNTM was found..." : "CNTM was found!");
+        Log(cnmtNcaEntry == null ? "No CNTM.NCA was found..." : "CNTM.NCA was found!");
         if (cnmtNcaEntry == null) return false;
 
         /* Read CNMT */
-        // Prepares CNMT reader
+        // Prepares CNMT NCA reader
+        Log("Opening CNMT.NCA file...");
         using var cnmtNcaFile = new UniqueRef<IFile>();
         result = fs.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
+
+        Log(result.IsSuccess() ? "CNMT.NCA has been open!" : "Couldn't open CNMT.NCA");
+        if (!result.IsSuccess()) return false;
+
+        // Open CNMT NCA FyleSystem
+        Log("Parsing CNMT.NCA FileSystem...");
+        var nca = new Nca(keyset, cnmtNcaFile.Get.AsStorage());
+        IFileSystem ncaFs = nca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
+
+        // Get the first CNMT file stream
+        Log("Searching internal CNMT file...");
+        U8Span cnmtPath = (U8Span)ncaFs.EnumerateEntries("/", "*.cnmt").Single().FullPath;
+        using var cnmtFile = new UniqueRef<IFile>();
+        result = ncaFs.OpenFile(ref cnmtFile.Ref, cnmtPath, OpenMode.Read);
 
         Log(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
         if (!result.IsSuccess()) return false;
 
+        // Parse CNMT from previously opened stream
+        Log("Parsing CNMT...");
+        var cnmt = new Cnmt(cnmtFile.Get.AsStream());
+
+        Log($"[color=yellow]ApplicationTitleId: {cnmt.ApplicationTitleId:X}[/color]");
         return true;
     }
 }
