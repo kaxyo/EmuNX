@@ -2,6 +2,7 @@ using Godot;
 
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 using LibHac;
 using LibHac.Common;
@@ -31,13 +32,21 @@ public partial class HelloWorld : Control
         }
 
         // Start ROM reading
-        bool success = ReadRom(
-            paths[0], // NSP|XCI
-            paths[1], // PROD.KEYS
-            paths[2]  // TITLE.KEYS
-        );
+        try
+        {
+            bool success = ReadRom(
+                paths[0], // NSP|XCI
+                paths[1], // PROD.KEYS
+                paths[2]  // TITLE.KEYS
+            );
 
-        Log($"[color={(success ? "green]" : "red]")}Process ended with {(success ? "success" : "failure")}[/color]");
+            Log($"[color={(success ? "green]" : "red]")}Process ended with {(success ? "success" : "failure")}[/color]");
+        }
+        catch (Exception e)
+        {
+            Log("[color=red]Process ended because of the following exception:[/color]");
+            Log($"[color=maroon]{e}[/color]");
+        }
     }
 
     /// <summary>
