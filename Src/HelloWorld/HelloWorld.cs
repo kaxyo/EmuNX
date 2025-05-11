@@ -215,6 +215,25 @@ public partial class HelloWorld : Control
         Log(controlNcaEntry == null ? "No CONTROL NCA was found..." : "CONTROL NCA was found!");
         if (controlNcaEntry == null) return false;
 
+        // Prepares CONTROL NCA reader
+        Log("Opening CONTROL.NCA file...");
+        using var controlNcaFile = new UniqueRef<IFile>();
+        result = fs.OpenFile(ref controlNcaFile.Ref, (U8Span)controlNcaEntry.FullPath, OpenMode.All);
+
+        Log(result.IsSuccess() ? "CONTROL.NCA has been open!" : "Couldn't open CONTROL.NCA");
+        if (!result.IsSuccess()) return false;
+
+        // Open CNMT NCA FyleSystem
+        Log("Parsing CONTROL.NCA FileSystem...");
+        var controlNca = new Nca(keyset, controlNcaFile.Get.AsStorage());
+        IFileSystem controlNcaFs = controlNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
+
+        Log("[color=yellow]Listing CONTROL.NCA entries...[/color]");
+        foreach (var entry in controlNcaFs.EnumerateEntries("/", "*"))
+        {
+            Log($"\t[color=peru]{entry.FullPath}[/color]");
+        }
+
         return true;
     }
 }
