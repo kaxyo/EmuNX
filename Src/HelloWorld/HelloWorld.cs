@@ -1,20 +1,18 @@
-using Godot;
-
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System;
-
+using System.Linq;
+using Godot;
 using LibHac;
 using LibHac.Common;
+using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
-using System.Linq;
-using LibHac.Common.Keys;
-using LibHac.Tools.Ncm;
 using LibHac.Tools.FsSystem.NcaUtils;
+using LibHac.Tools.Ncm;
 
 public partial class HelloWorld : Control
 {
