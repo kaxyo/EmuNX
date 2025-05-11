@@ -13,6 +13,8 @@ using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.NcaUtils;
 using LibHac.Tools.Ncm;
+using LibHac.Util;
+using ContentType = LibHac.Ncm.ContentType;
 
 public partial class HelloWorld : Control
 {
@@ -195,6 +197,16 @@ public partial class HelloWorld : Control
         var cnmt = new Cnmt(cnmtFile.Get.AsStream());
 
         Log($"[color=yellow]ApplicationTitleId: {cnmt.ApplicationTitleId:X}[/color]");
+
+        // Search control entry
+        CnmtContentEntry control = cnmt.ContentEntries.FirstOrDefault(e => e.Type == ContentType.Control);
+
+        Log(control == null ? "Control entry was not found" : "Control entry was found!");
+        if (control == null) return false;
+
+        /* Read CONTROL NCA */
+        Log(control.NcaId.ToHexString());
+
         return true;
     }
 }
