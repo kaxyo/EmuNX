@@ -205,7 +205,15 @@ public partial class HelloWorld : Control
         if (control == null) return false;
 
         /* Read CONTROL NCA */
-        Log(control.NcaId.ToHexString());
+        // Generate CONTROL NCA path
+        string controlNcaPath = $"{control.NcaId.ToHexString().ToLower()}.nca";
+
+        // Search CONTROL NCA
+        Log($"Searching for {controlNcaPath} inside NSP...");
+        DirectoryEntryEx controlNcaEntry = fs.EnumerateEntries().FirstOrDefault(e => e.Name == controlNcaPath);
+
+        Log(controlNcaEntry == null ? "No CONTROL NCA was found..." : "CONTROL NCA was found!");
+        if (controlNcaEntry == null) return false;
 
         return true;
     }
