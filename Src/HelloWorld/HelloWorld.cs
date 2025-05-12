@@ -19,6 +19,7 @@ using ContentType = LibHac.Ncm.ContentType;
 public partial class HelloWorld : Control
 {
     #region Godot
+    private TextureRect textureRect;
     private RichTextLabel richTextLabel;
     #endregion
 
@@ -30,7 +31,9 @@ public partial class HelloWorld : Control
 
     public override void _Ready()
     {
+        textureRect = GetNode<TextureRect>("TextureRect");
         richTextLabel = GetNode<RichTextLabel>("RichTextLabel");
+
         Log("[outline_color=#ffffff60][outline_size=6][rainbow freq=0.5 sat=0.8 val=0.8 speed=0.5][wave]Hello from EmuNX :)[/wave][/rainbow][/outline_size][/outline_color]");
 
         // Load files used in testing
@@ -50,7 +53,16 @@ public partial class HelloWorld : Control
                 paths[2]  // TITLE.KEYS
             );
 
-            Log($"[color={(success ? "green]" : "red]")}Process ended with {(success ? "success" : "failure")}[/color]");
+            Log($"[color={(success ? "green]" : "red]")}ReadRom() ended with {(success ? "success" : "failure")}[/color]");
+            if (!success) return;
+
+            Log("Opening image");
+            if (!LoadStreamToTextureRect(titleIcon, textureRect))
+            {
+                Log("Couldn't open");
+            }
+
+            Log("[color=purple]Process ended[/color]");
         }
         catch (Exception e)
         {
