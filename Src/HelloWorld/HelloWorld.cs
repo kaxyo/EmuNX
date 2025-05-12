@@ -271,9 +271,14 @@ public partial class HelloWorld : Control
         Log(result.IsSuccess() ? "ICON has been open!" : "Couldn't open ICON");
         if (!result.IsSuccess()) return false;
 
-        // Get stream
-        Log("Parsing CNMT...");
-        titleIcon = iconFile.Get.AsStream();
+        // Copy stream
+        Log("Copying ICON stream for later use...");
+        using (var tempStream = iconFile.Get.AsStream())
+        {
+            titleIcon = new MemoryStream();
+            tempStream.CopyTo(titleIcon);
+            titleIcon.Position = 0;
+        }
 
         return true;
     }
