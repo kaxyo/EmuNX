@@ -69,6 +69,26 @@ public partial class HelloWorld : Control
         richTextLabel.Text += message + "\n";
     }
 
+    public bool LoadStreamToTextureRect(Stream stream, TextureRect textureRect)
+    {
+        // Convert bytes from stream to array
+        byte[] buffer;
+        using (MemoryStream ms = new MemoryStream())
+        {
+            stream.CopyTo(ms);
+            buffer = ms.ToArray();
+        }
+
+        // Load image
+        Image image = new Image();
+        Error error = image.LoadJpgFromBuffer(buffer);
+        if (error != Error.Ok) return false;
+
+        // Update TextureRect
+        textureRect.Texture = ImageTexture.CreateFromImage(image);
+        return true;
+    }
+
     /// <summary>
     /// Loads the file paths from the test.txt file.
     /// The file should contain three lines that are the paths to the following files:
