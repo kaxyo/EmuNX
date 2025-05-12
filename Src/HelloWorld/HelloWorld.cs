@@ -18,7 +18,15 @@ using ContentType = LibHac.Ncm.ContentType;
 
 public partial class HelloWorld : Control
 {
+    #region Godot
     private RichTextLabel richTextLabel;
+    #endregion
+
+    #region Rom
+    private string titleId = "???";
+    private Stream titleIcon;
+    private string titlename = "???";
+    #endregion
 
     public override void _Ready()
     {
