@@ -204,6 +204,7 @@ public partial class HelloWorld : Control
         Log("Parsing CNMT...");
         var cnmt = new Cnmt(cnmtFile.Get.AsStream());
 
+        titleId = $"{cnmt.ApplicationTitleId:X}";
         Log($"[color=yellow]ApplicationTitleId: {cnmt.ApplicationTitleId:X}[/color]");
 
         // Search control entry
