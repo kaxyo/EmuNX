@@ -180,14 +180,14 @@ public partial class HelloWorld : Control
 
         // Open CNMT NCA FyleSystem
         Log("Parsing CNMT.NCA FileSystem...");
-        var nca = new Nca(keyset, cnmtNcaFile.Get.AsStorage());
-        IFileSystem ncaFs = nca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
+        var cnmtNca = new Nca(keyset, cnmtNcaFile.Get.AsStorage());
+        IFileSystem cnmtNcaFs = cnmtNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
 
         // Get the first CNMT file stream
         Log("Searching internal CNMT file...");
-        U8Span cnmtPath = (U8Span)ncaFs.EnumerateEntries("/", "*.cnmt").Single().FullPath;
+        U8Span cnmtPath = (U8Span)cnmtNcaFs.EnumerateEntries("/", "*.cnmt").Single().FullPath;
         using var cnmtFile = new UniqueRef<IFile>();
-        result = ncaFs.OpenFile(ref cnmtFile.Ref, cnmtPath, OpenMode.Read);
+        result = cnmtNcaFs.OpenFile(ref cnmtFile.Ref, cnmtPath, OpenMode.Read);
 
         Log(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
         if (!result.IsSuccess()) return false;
