@@ -234,6 +234,14 @@ public partial class HelloWorld : Control
             Log($"\t[color=peru]{entry.FullPath}[/color]");
         }
 
+        /* Parse icon */
+        // Open file
+        using var iconFile = new UniqueRef<IFile>();
+        result = controlNcaFs.OpenFile(ref iconFile.Ref, (U8Span)"/icon_AmericanEnglish.dat", OpenMode.Read);
+
+        Log(result.IsSuccess() ? "ICON has been open!" : "Couldn't open ICON");
+        if (!result.IsSuccess()) return false;
+
         return true;
     }
 }
