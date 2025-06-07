@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Godot;
 using LibHac;
 using LibHac.Common;
@@ -9,6 +10,7 @@ using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
+using LibHac.Ns;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.NcaUtils;
@@ -292,6 +294,47 @@ public partial class HelloWorld : Control
             titleIcon.Position = 0;
         }
 
-        return true;
+        /* Parse CONTROL NCAP */
+        Log("Opening control.nacp file...");
+        using var nacpFile = new UniqueRef<IFile>();
+        controlNcaFs.OpenFile(ref nacpFile.Ref, (U8Span)"/control.nacp", OpenMode.Read);
+
+        Log(result.IsSuccess() ? "NACP has been open!" : "Couldn't open NACP");
+        if (!result.IsSuccess()) return false;
+
+        Log("Parsing control.nacp as ApplicationControlProperty...");
+
+        const int nacpSize = 0x4000;
+        byte[] nacpBuffer = new byte[nacpSize];
+
+        using (var nacpStream = nacpFile.Get.AsStream())
+        {
+            int bytesRead = nacpStream.Read(nacpBuffer, 0, nacpSize);
+            if (bytesRead != nacpSize)
+            {
+                Log($"Couldn't read first {nacpSize} bytes from control.nacp");
+                return false;
+            }
+
+            GCHandle handle = GCHandle.Alloc(nacpBuffer, GCHandleType.Pinned);
+            try
+            {
+                ApplicationControlProperty nacp = Marshal.PtrToStructure<ApplicationControlProperty>(handle.AddrOfPinnedObject());
+
+                titlename = nacp.Title.Items[(int)ApplicationControlProperty.Language.AmericanEnglish].NameString.ToString();
+                Log($"[color=yellow]Game title (AmericanEnglish): {titlename}[/color]");
+            }
+            catch (Exception)
+            {
+                Log($"Marshal failed to parse ApplicationControlProperty from bytes :(");
+                return false;
+            }
+            finally
+            {
+                handle.Free();
+            }
+
+            return true;
+        }
     }
 }
