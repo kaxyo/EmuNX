@@ -178,10 +178,32 @@ public partial class HelloWorld : Control
         KeySet keyset = new KeySet();
         ExternalKeyReader.ReadKeyFile(keyset, prodKeysPath, titleKeysPath, null, null);
 
-        /* Read NSP*/
-        // Prepares NSP reader
+        /* Read ROM file */
+        // Read extension
+        string romExtension = romPath.Split(".").Last();
+
+        // Check extension
+        switch (romExtension)
+        {
+            case "nsp":
+                Log("This rom will be read as NSP");
+                break;
+
+            case "xci":
+                Log("This rom will be read as XCI");
+                Log("Not supported yet :(");
+                return false;
+                break;
+
+            default:
+                Log("This file doesn't have NSP or XCI extension");
+                return false;
+        }
+
+        // Load file
         using var file = new LocalStorage(romPath, System.IO.FileAccess.Read);
 
+        /* Read NSP*/
         // Starts NSP reader
         using UniqueRef<PartitionFileSystem> pfs = new UniqueRef<PartitionFileSystem>();
         pfs.Reset(new PartitionFileSystem());
