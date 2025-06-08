@@ -35,7 +35,14 @@ public partial class HelloWorld : Control
     {
         textureRect = GetNode<TextureRect>("TextureRect");
         richTextLabel = GetNode<RichTextLabel>("RichTextLabel");
+        Main();
+    }
 
+    public void Main()
+    {
+        // Reset console
+        GD.Print("Console cleared...");
+        richTextLabel.Text = "";
         Log("[outline_color=#ffffff60][outline_size=6][rainbow freq=0.5 sat=0.8 val=0.8 speed=0.5][wave]Hello from EmuNX :)[/wave][/rainbow][/outline_size][/outline_color]");
 
         // Load files used in testing
