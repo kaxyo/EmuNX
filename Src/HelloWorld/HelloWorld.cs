@@ -191,8 +191,6 @@ public partial class HelloWorld : Control
 
             case "xci":
                 Log("This rom will be read as XCI");
-                Log("Not supported yet :(");
-                return false;
                 break;
 
             default:
@@ -203,19 +201,30 @@ public partial class HelloWorld : Control
         // Load file
         using var file = new LocalStorage(romPath, System.IO.FileAccess.Read);
 
-        /* Read NSP*/
-        // Starts NSP reader
-        using UniqueRef<PartitionFileSystem> pfs = new UniqueRef<PartitionFileSystem>();
-        pfs.Reset(new PartitionFileSystem());
-        result = pfs.Get.Initialize(file);
+        // Get fs
+        IFileSystem fs = null;
 
-        Log(result.IsSuccess() ? "NSP has been open!" : "Couldn't open NSP");
-        if (!result.IsSuccess()) return false;
+        switch (romExtension)
+        {
+            case "nsp":
+                fs = OpenNspFileSystem(file, keyset);
+                break;
 
-        // Search CNMT inside NSP
-        Log("Searching for CNMT inside NSP...");
+            case "xci":
+                fs = OpenXciFileSystem(file, keyset);
+                break;
+        }
+
+        if (fs == null)
+        {
+            Log("Couldn't open FileSystem");
+            return false;
+        }
+
+        /* Search CNMT */
+        // Search CNMT inside ROM
+        Log("Searching for CNMT inside ROM...");
         DirectoryEntryEx cnmtNcaEntry = null;
-        IFileSystem fs = pfs.Get;
         foreach (DirectoryEntryEx entry in fs.EnumerateEntries()) // 👀 fs.EnumerateEntries("*.nca", SearchOptions.Default).Any()
         {
             string line = $"\t{entry.Name}";
@@ -357,6 +366,39 @@ public partial class HelloWorld : Control
             }
 
             return true;
+        }
+    }
+
+    private IFileSystem OpenNspFileSystem(LocalStorage file, KeySet keyset)
+    {
+        using var pfs = new UniqueRef<PartitionFileSystem>();
+        pfs.Reset(new PartitionFileSystem());
+        Result result = pfs.Get.Initialize(file);
+
+        bool success = result.IsSuccess();
+
+        if (success)
+        {
+            return pfs.Release();
+        }
+        else
+        {
+            Log($"Couldn't open NSP");
+            return null;
+        }
+    }
+
+    private IFileSystem OpenXciFileSystem(LocalStorage file, KeySet keyset)
+    {
+        try
+        {
+            var xci = new Xci(keyset, file);
+            return xci.OpenPartition(XciPartitionType.Secure);
+        }
+        catch (Exception ex)
+        {
+            Log($"Couldn't open XCI: {ex.Message}");
+            return null;
         }
     }
 }
