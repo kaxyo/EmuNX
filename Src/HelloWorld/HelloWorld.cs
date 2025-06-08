@@ -31,6 +31,7 @@ public partial class HelloWorld : Control
     private string titlename = "???";
     #endregion
 
+    #region Godot
     public override void _Ready()
     {
         textureRect = GetNode<TextureRect>("TextureRect");
@@ -43,6 +44,7 @@ public partial class HelloWorld : Control
         bool wantsToReload = @event is InputEventKey eventKey && eventKey.Pressed && !eventKey.Echo && eventKey.Keycode == Key.F5;
         if (wantsToReload) Main();
     }
+    #endregion
 
     public void Main()
     {
@@ -86,6 +88,7 @@ public partial class HelloWorld : Control
         }
     }
 
+    #region Utils
     /// <summary>
     /// Prints a message to the Godot console and UI console.
     /// </summary>
@@ -173,7 +176,9 @@ public partial class HelloWorld : Control
         // Return paths
         return paths;
     }
+    #endregion
 
+    #region Rom
     /// <summary>
     /// Uses logic from https://github.com/Thealexbarney/LibHac/blob/master/src/hactoolnet/ProcessPfs.cs
     /// </summary>
@@ -414,4 +419,5 @@ public partial class HelloWorld : Control
             return null;
         }
     }
+    #endregion
 }
