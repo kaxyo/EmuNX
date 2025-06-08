@@ -38,6 +38,12 @@ public partial class HelloWorld : Control
         Main();
     }
 
+    public override void _Input(InputEvent @event)
+    {
+        bool wantsToReload = @event is InputEventKey eventKey && eventKey.Pressed && !eventKey.Echo && eventKey.Keycode == Key.F5;
+        if (wantsToReload) Main();
+    }
+
     public void Main()
     {
         // Reset console
