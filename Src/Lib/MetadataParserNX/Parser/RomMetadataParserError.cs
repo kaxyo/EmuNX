@@ -1,6 +1,8 @@
-namespace EmuNX.Lib.MetadataParserNX;
+namespace EmuNX.Lib.MetadataParserNX.Parser;
 
 public enum RomMetadataParserError
 {
-    Unknown
+    Unknown,
+    KeysProdNotFound,
+    KeysProdInvalid,
 }
