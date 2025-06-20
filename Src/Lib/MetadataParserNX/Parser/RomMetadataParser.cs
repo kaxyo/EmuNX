@@ -22,6 +22,7 @@ public class RomMetadataParser
     private KeySet _keyset = null;
     private IFileSystem _rootFs = null;
 
+    #region Parsing process
     /// <summary>
     /// Loads the encryption keys from prod.keys file.
     /// These are required to read the metadata.
@@ -67,6 +68,7 @@ public class RomMetadataParser
         };
     }
     
+    #region Specific RootFs loading
     /// <summary>
     /// Tries to load the Root FileSystem from any XCI file.
     /// This Root FileSystem contains multiple NCAs like CNMT, CONTROL, etc...
@@ -117,7 +119,10 @@ public class RomMetadataParser
 
         return RomMetadataParserError.XciLoadRootFsError;
     }
+    #endregion
+    #endregion
 
+    #region Utils
     private LocalStorage OpenFileAsLocalStorage(string path)
     {
         try
@@ -129,4 +134,5 @@ public class RomMetadataParser
             return null;
         }
     }
+    #endregion
 }
