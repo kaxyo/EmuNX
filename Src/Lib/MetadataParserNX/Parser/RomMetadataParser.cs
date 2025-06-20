@@ -8,7 +8,6 @@ using LibHac.Common.Keys;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 using LibHac.Tools.Fs;
-using LibHacResult = LibHac.Result;
 
 /// <summary>
 /// Provides functionality to parse metadata from ROM files (XCI/NSP),
@@ -20,10 +19,10 @@ using LibHacResult = LibHac.Result;
 public class RomMetadataParser
 {
     // Keys: prod.keys
-    private KeySet _keyset = null;
+    private KeySet _keyset;
     // RootFileSystem: Stores meta.cnmt.nca, control.nca, etc...
-    private IFileSystem _rootFs = null;
-    private LocalStorage _rootLocalStorage = null;
+    private IFileSystem _rootFs;
+    private LocalStorage _rootLocalStorage;
 
     #region Parsing process
     /// <summary>
@@ -65,8 +64,8 @@ public class RomMetadataParser
 
         return romExtension switch
         {
-            "xci" => LoadRootFsFromXCI(romPath),
-            "nsp" => LoadRootFsFromNSP(romPath),
+            "xci" => LoadRootFsFromXci(romPath),
+            "nsp" => LoadRootFsFromNsp(romPath),
             _ => RomMetadataParserError.RomUnknownFormat
         };
     }
@@ -80,7 +79,7 @@ public class RomMetadataParser
     /// <param name="xciPath">Path to the xci file</param>
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     /// <returns></returns>
-    public RomMetadataParserError? LoadRootFsFromXCI(string xciPath)
+    private RomMetadataParserError? LoadRootFsFromXci(string xciPath)
     {
         DisposeRootFs();
 
@@ -92,7 +91,7 @@ public class RomMetadataParser
             _rootFs = xci.OpenPartition(XciPartitionType.Secure);
             return null;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             _rootFs = null;
             return RomMetadataParserError.XciLoadRootFsError;
@@ -106,7 +105,7 @@ public class RomMetadataParser
     /// </summary>
     /// <param name="nspPath">Path to the nsp file</param>
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
-    public RomMetadataParserError? LoadRootFsFromNSP(string nspPath)
+    private RomMetadataParserError? LoadRootFsFromNsp(string nspPath)
     {
         DisposeRootFs();
 
@@ -114,9 +113,9 @@ public class RomMetadataParser
 
         using var pfs = new UniqueRef<PartitionFileSystem>();
         pfs.Reset(new PartitionFileSystem());
-        LibHacResult result = pfs.Get.Initialize(_rootLocalStorage);
+        var result = pfs.Get.Initialize(_rootLocalStorage);
 
-        bool success = result.IsSuccess();
+        var success = result.IsSuccess();
 
         if (success)
         {
@@ -150,13 +149,13 @@ public class RomMetadataParser
     #endregion
     
     #region Utils
-    private LocalStorage OpenFileAsLocalStorage(string path)
+    private static LocalStorage OpenFileAsLocalStorage(string path)
     {
         try
         {
             return new LocalStorage(path, FileAccess.Read);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return null;
         }
