@@ -5,4 +5,5 @@ public enum RomMetadataParserError
     Unknown,
     KeysProdNotFound,
     KeysProdInvalid,
+    RomUnknownFormat,
 }
