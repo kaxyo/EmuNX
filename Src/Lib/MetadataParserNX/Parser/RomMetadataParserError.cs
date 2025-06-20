@@ -7,10 +7,12 @@ public enum RomMetadataParserError
     KeysProdInvalid,
     KeysMissing,
     RomUnknownFormat,
+    RomReadDependenciesNotComplete,
     XciLoadRootFsError,
     NspLoadRootFsError,
     CnmtNcaNotFound,
     CnmtNcaReadError,
+    CnmtReadDependenciesNotComplete,
     CnmtNotFound,
     CnmtReadError,
 }

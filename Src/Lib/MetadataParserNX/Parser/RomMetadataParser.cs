@@ -87,6 +87,7 @@ public class RomMetadataParser
     /// <returns></returns>
     private RomMetadataParserError? LoadRootFsFromXci(string xciPath)
     {
+        if (!CanLoadRootFsFromRom()) return RomMetadataParserError.RomReadDependenciesNotComplete;
         DisposeRootFs();
 
         _rootLocalStorage = OpenFileAsLocalStorage(xciPath);
@@ -113,6 +114,7 @@ public class RomMetadataParser
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     private RomMetadataParserError? LoadRootFsFromNsp(string nspPath)
     {
+        if (!CanLoadRootFsFromRom()) return RomMetadataParserError.RomReadDependenciesNotComplete;
         DisposeRootFs();
 
         _rootLocalStorage = OpenFileAsLocalStorage(nspPath);
@@ -141,6 +143,8 @@ public class RomMetadataParser
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     public RomMetadataParserError? LoadCnmt()
     {
+        if (!CanLoadCnmt()) return RomMetadataParserError.CnmtReadDependenciesNotComplete;
+
         // Find unique NCA with a CNMT file inside
         var cnmtNcaEntry = _rootFs
             .EnumerateEntries("*.cnmt.nca", SearchOptions.Default)
@@ -193,6 +197,18 @@ public class RomMetadataParser
         // Clear references
         _rootFs = null;
         _rootLocalStorage = null;
+    }
+    #endregion
+
+    #region Dependency checks
+    private bool CanLoadRootFsFromRom()
+    {
+        return _keyset != null;
+    }
+    
+    private bool CanLoadCnmt()
+    {
+        return CanLoadRootFsFromRom() && _rootFs != null;
     }
     #endregion
     
