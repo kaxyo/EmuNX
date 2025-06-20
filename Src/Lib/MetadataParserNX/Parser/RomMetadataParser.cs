@@ -54,7 +54,7 @@ public class RomMetadataParser
     /// The rom can be any XCI or NSP, and the Root FileSystem will be loaded
     /// with the adequate method.
     /// This Root FileSystem contains multiple NCAs like CNMT, CONTROL, etc...
-    /// The next thing you can execute is <see cref="..."/>.
+    /// The next thing you can execute is <see cref="LoadCnmt()"/>.
     /// </summary>
     /// <param name="romPath">Path to the xci|nsp file</param>
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
@@ -74,7 +74,7 @@ public class RomMetadataParser
     /// <summary>
     /// Tries to load the Root FileSystem from any XCI file.
     /// This Root FileSystem contains multiple NCAs like CNMT, CONTROL, etc...
-    /// The next thing you can execute is <see cref="..."/>.
+    /// The next thing you can execute is <see cref="LoadCnmt()"/>.
     /// </summary>
     /// <param name="xciPath">Path to the xci file</param>
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
@@ -101,7 +101,7 @@ public class RomMetadataParser
     /// <summary>
     /// Tries to load the Root FileSystem from any NSP file.
     /// This Root FileSystem contains multiple NCAs like CNMT, CONTROL, etc...
-    /// The next thing you can execute is <see cref="..."/>.
+    /// The next thing you can execute is <see cref="LoadCnmt()"/>.
     /// </summary>
     /// <param name="nspPath">Path to the nsp file</param>
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
@@ -126,6 +126,17 @@ public class RomMetadataParser
         return RomMetadataParserError.XciLoadRootFsError;
     }
     #endregion
+
+    /// <summary>
+    /// Loads the cnmt file inside RootFs, also known as, PackagedContentMeta.
+    /// This file stores the TitleID and NCA IDs. These NCA IDs are used as
+    /// filename. 
+    /// </summary>
+    /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
+    public RomMetadataParserError? LoadCnmt()
+    {
+        return RomMetadataParserError.Unknown;
+    }
     #endregion
 
     #region Memory management
