@@ -19,8 +19,11 @@ using LibHacResult = LibHac.Result;
 /// </summary>
 public class RomMetadataParser
 {
+    // Keys: prod.keys
     private KeySet _keyset = null;
+    // RootFileSystem: Stores meta.cnmt.nca, control.nca, etc...
     private IFileSystem _rootFs = null;
+    private LocalStorage _rootLocalStorage = null;
 
     #region Parsing process
     /// <summary>
@@ -32,7 +35,7 @@ public class RomMetadataParser
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     public RomMetadataParserError? LoadKeys(string prodKeysPath)
     {
-        _keyset = null;
+        DisposeKeys();
 
         // Check file existence
         if (!File.Exists(prodKeysPath)) return RomMetadataParserError.KeysProdNotFound;
@@ -79,11 +82,13 @@ public class RomMetadataParser
     /// <returns></returns>
     public RomMetadataParserError? LoadRootFsFromXCI(string xciPath)
     {
-        using var file = OpenFileAsLocalStorage(xciPath);
+        DisposeRootFs();
+
+        _rootLocalStorage = OpenFileAsLocalStorage(xciPath);
 
         try
         {
-            var xci = new Xci(_keyset, file);
+            var xci = new Xci(_keyset, _rootLocalStorage);
             _rootFs = xci.OpenPartition(XciPartitionType.Secure);
             return null;
         }
@@ -103,11 +108,13 @@ public class RomMetadataParser
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     public RomMetadataParserError? LoadRootFsFromNSP(string nspPath)
     {
-        using var file = OpenFileAsLocalStorage(nspPath);
+        DisposeRootFs();
+
+        _rootLocalStorage = OpenFileAsLocalStorage(nspPath);
 
         using var pfs = new UniqueRef<PartitionFileSystem>();
         pfs.Reset(new PartitionFileSystem());
-        LibHacResult result = pfs.Get.Initialize(file);
+        LibHacResult result = pfs.Get.Initialize(_rootLocalStorage);
 
         bool success = result.IsSuccess();
 
@@ -122,6 +129,26 @@ public class RomMetadataParser
     #endregion
     #endregion
 
+    #region Memory management
+    private void DisposeKeys()
+    {
+        // Dispose nested elements
+        DisposeRootFs();
+        // Clear references
+        _keyset = null;
+    }
+    
+    private void DisposeRootFs()
+    {
+        // Free memory
+        _rootFs?.Dispose();
+        _rootLocalStorage?.Dispose();
+        // Clear references
+        _rootFs = null;
+        _rootLocalStorage = null;
+    }
+    #endregion
+    
     #region Utils
     private LocalStorage OpenFileAsLocalStorage(string path)
     {
