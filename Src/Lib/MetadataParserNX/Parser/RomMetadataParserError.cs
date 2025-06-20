@@ -9,4 +9,8 @@ public enum RomMetadataParserError
     RomUnknownFormat,
     XciLoadRootFsError,
     NspLoadRootFsError,
+    CnmtNcaNotFound,
+    CnmtNcaReadError,
+    CnmtNotFound,
+    CnmtReadError,
 }

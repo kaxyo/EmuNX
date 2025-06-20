@@ -5,9 +5,13 @@ using System.IO;
 using System.Linq;
 using LibHac.Common;
 using LibHac.Common.Keys;
+using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 using LibHac.Tools.Fs;
+using LibHac.Tools.FsSystem;
+using LibHac.Tools.FsSystem.NcaUtils;
+using LibHac.Tools.Ncm;
 
 /// <summary>
 /// Provides functionality to parse metadata from ROM files (XCI/NSP),
@@ -23,6 +27,8 @@ public class RomMetadataParser
     // RootFileSystem: Stores meta.cnmt.nca, control.nca, etc...
     private IFileSystem _rootFs;
     private LocalStorage _rootLocalStorage;
+    // Cnmt: Metadata that is mostly IDs
+    private Cnmt _cnmt;
 
     #region Parsing process
     /// <summary>
@@ -135,7 +141,38 @@ public class RomMetadataParser
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     public RomMetadataParserError? LoadCnmt()
     {
-        return RomMetadataParserError.Unknown;
+        // Find unique NCA with a CNMT file inside
+        var cnmtNcaEntry = _rootFs
+            .EnumerateEntries("*.cnmt.nca", SearchOptions.Default)
+            .FirstOrDefault();
+        if (cnmtNcaEntry == null) return RomMetadataParserError.CnmtNcaNotFound;
+
+        // Read NCA stream
+        using var cnmtNcaFile = new UniqueRef<IFile>();
+        var result = _rootFs.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
+        if (result.IsFailure()) return RomMetadataParserError.CnmtNcaReadError;
+
+        // Open NCA FileSystem
+        var cnmtNca = new Nca(_keyset, cnmtNcaFile.Get.AsStorage());
+        using var cnmtNcaFs = cnmtNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
+
+        // Find the name of the CNMT file
+        var cnmtEntry = cnmtNcaFs
+            .EnumerateEntries("/", "*.cnmt")
+            .FirstOrDefault();
+        if (cnmtEntry == null) return RomMetadataParserError.CnmtNotFound;
+
+        var cnmtPath = (U8Span)cnmtEntry.FullPath;
+    
+        // Read CNMT file stream
+        using var cnmtFile = new UniqueRef<IFile>();
+        result = cnmtNcaFs.OpenFile(ref cnmtFile.Ref, cnmtPath, OpenMode.Read);
+        if (result.IsFailure()) return RomMetadataParserError.CnmtReadError;
+        
+        // Parse CNMT
+        _cnmt = new Cnmt(cnmtFile.Get.AsStream());
+
+        return null;
     }
     #endregion
 
