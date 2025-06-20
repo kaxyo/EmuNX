@@ -123,7 +123,7 @@ public class RomMetadataParser
             return null;
         }
 
-        return RomMetadataParserError.XciLoadRootFsError;
+        return RomMetadataParserError.NspLoadRootFsError;
     }
     #endregion
 
