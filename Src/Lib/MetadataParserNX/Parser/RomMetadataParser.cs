@@ -1,8 +1,14 @@
 namespace EmuNX.Lib.MetadataParserNX.Parser;
 
+using System;
 using System.IO;
 using System.Linq;
+using LibHac.Common;
 using LibHac.Common.Keys;
+using LibHac.Fs.Fsa;
+using LibHac.FsSystem;
+using LibHac.Tools.Fs;
+using LibHacResult = LibHac.Result;
 
 /// <summary>
 /// Provides functionality to parse metadata from ROM files (XCI/NSP),
@@ -14,6 +20,7 @@ using LibHac.Common.Keys;
 public class RomMetadataParser
 {
     private KeySet _keyset = null;
+    private IFileSystem _rootFs = null;
 
     /// <summary>
     /// Loads the encryption keys from prod.keys file.
@@ -70,7 +77,19 @@ public class RomMetadataParser
     /// <returns></returns>
     public RomMetadataParserError? LoadRootFsFromXCI(string xciPath)
     {
-        return RomMetadataParserError.Unknown;
+        using var file = OpenFileAsLocalStorage(xciPath);
+
+        try
+        {
+            var xci = new Xci(_keyset, file);
+            _rootFs = xci.OpenPartition(XciPartitionType.Secure);
+            return null;
+        }
+        catch (Exception e)
+        {
+            _rootFs = null;
+            return RomMetadataParserError.XciLoadRootFsError;
+        }
     }
     
     /// <summary>
@@ -82,6 +101,32 @@ public class RomMetadataParser
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     public RomMetadataParserError? LoadRootFsFromNSP(string nspPath)
     {
-        return RomMetadataParserError.Unknown;
+        using var file = OpenFileAsLocalStorage(nspPath);
+
+        using var pfs = new UniqueRef<PartitionFileSystem>();
+        pfs.Reset(new PartitionFileSystem());
+        LibHacResult result = pfs.Get.Initialize(file);
+
+        bool success = result.IsSuccess();
+
+        if (success)
+        {
+            _rootFs = pfs.Release();
+            return null;
+        }
+
+        return RomMetadataParserError.XciLoadRootFsError;
+    }
+
+    private LocalStorage OpenFileAsLocalStorage(string path)
+    {
+        try
+        {
+            return new LocalStorage(path, FileAccess.Read);
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
     }
 }
