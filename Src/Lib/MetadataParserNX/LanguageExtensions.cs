@@ -67,9 +67,9 @@ public static class LanguageExtensions
     /// </summary>
     /// <param name="language">The language for which to get the entry index.</param>
     /// <returns>The entry index as an integer.</returns>
-    public static string GetEntryIndex(this Language language)
+    public static int GetEntryIndex(this Language language)
     {
-        return iconPaths[language];
+        return entryIndeces[language];
     }
     #endregion
 }
