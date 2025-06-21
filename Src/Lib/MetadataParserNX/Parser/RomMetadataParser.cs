@@ -12,6 +12,8 @@ using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.NcaUtils;
 using LibHac.Tools.Ncm;
+using LibHac.Util;
+using ContentType = LibHac.Ncm.ContentType;
 
 /// <summary>
 /// <para>
@@ -51,6 +53,10 @@ public class RomMetadataParser
     private LocalStorage _rootLocalStorage;
     // Cnmt: Metadata that is mostly IDs
     private Cnmt _cnmt;
+    // Control: Name and icons
+    private string _controlNcaIdHex = null;
+    private IFileSystem _controlNcaFs = null;
+    private UniqueRef<IFile> _controlNcaFile = new UniqueRef<IFile>();
 
     #region Loading
     /// <summary>
@@ -160,7 +166,8 @@ public class RomMetadataParser
     /// <summary>
     /// Loads the cnmt file inside RootFs, also known as, PackagedContentMeta.
     /// This file stores the TitleID and NCA IDs. These NCA IDs are used as
-    /// filename. 
+    /// filename.
+    /// The next thing you can execute is <see cref="LoadControlNca()"/>.
     /// </summary>
     /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
     public RomMetadataParserError? LoadCnmt()
@@ -199,6 +206,37 @@ public class RomMetadataParser
         // Parse CNMT
         _cnmt = new Cnmt(cnmtFile.Get.AsStream());
 
+        // Read control data
+        CnmtContentEntry control = _cnmt.ContentEntries.FirstOrDefault(e => e.Type == ContentType.Control);
+        _controlNcaIdHex = control?.NcaId.ToHexString().ToLower();
+
+        return null;
+    }
+
+    /// <summary>
+    /// Loads the Control NCA which stores "control.nacp" and icon.
+    /// </summary>
+    /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
+    public RomMetadataParserError? LoadControlNca()
+    {
+        if (!CanLoadControlNca()) return RomMetadataParserError.ControlReadDependenciesNotComplete;
+        DisposeControlNca();
+
+        // Find Control NCA entry
+        var controlNcaEntry = _rootFs
+            .EnumerateEntries($"{_controlNcaIdHex}.nca", SearchOptions.Default)
+            .FirstOrDefault();
+        if (controlNcaEntry == null) return RomMetadataParserError.ControlNcaNotFound;
+
+        // Read NCA stream
+        _controlNcaFile = new UniqueRef<IFile>();
+        var result = _rootFs.OpenFile(ref _controlNcaFile.Ref, (U8Span)controlNcaEntry.FullPath, OpenMode.All);
+        if (result.IsFailure()) return RomMetadataParserError.ControlNcaReadError;
+
+        // Open NCA FileSystem
+        var controlNca = new Nca(_keyset, _controlNcaFile.Get.AsStorage());
+        _controlNcaFs = controlNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
+
         return null;
     }
     #endregion
@@ -236,7 +274,21 @@ public class RomMetadataParser
 
     private void DisposeCnmt()
     {
+        // Dispose nested elements
+        DisposeControlNca();
+        // Clear references
         _cnmt = null;
+        _controlNcaIdHex = null;
+    }
+    
+    private void DisposeControlNca()
+    {
+        // Free memory
+        _controlNcaFs?.Dispose();
+        _controlNcaFile.Destroy();
+        // Clear references
+        _controlNcaFs = null;
+        _controlNcaFile = new UniqueRef<IFile>();
     }
     #endregion
 
@@ -249,6 +301,11 @@ public class RomMetadataParser
     private bool CanLoadCnmt()
     {
         return CanLoadRootFsFromRom() && _rootFs != null;
+    }
+        
+    private bool CanLoadControlNca()
+    {
+        return CanLoadCnmt() && _controlNcaIdHex != null;
     }
     #endregion
     

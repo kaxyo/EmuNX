@@ -15,4 +15,7 @@ public enum RomMetadataParserError
     CnmtReadDependenciesNotComplete,
     CnmtNotFound,
     CnmtReadError,
+    ControlNcaNotFound,
+    ControlNcaReadError,
+    ControlReadDependenciesNotComplete,
 }
