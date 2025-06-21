@@ -34,14 +34,25 @@ using ContentType = LibHac.Ncm.ContentType;
 /// returns the value and updates the <see cref="RomMetadata"/> object.
 /// <code>
 /// var romMetadataParser = new RomMetadataParser();
-/// // Configure
-/// // Parse and read
+/// // Minimum requirements
 /// romMetadataParser.LoadKeys("~/switch/prod.keys");
 /// romMetadataParser.LoadRootFsFromRom("~/switch/rom.xci"); // Overwrites this.RomMetadata
+/// var rom = romMetadataParser.RomMetadata; // If you need this reference ALWAYS pick it here
+/// // Read TitleID
 /// romMetadataParser.LoadCnmt();
 /// romMetadataParser.ReadId();
-/// // Retrieve
-/// var rom = romMetadataParser.RomMetadata;
+/// // Needed for both TitleName and TitleIcon
+/// romMetadataParser.LoadControlNca();
+/// // Read Name
+/// romMetadataParser.LoadNacp();
+/// romMetadataParser.ReadName();
+/// // Read Icon
+/// romMetadataParser.ReadIcon();
+/// // Configure languages and overwrite
+/// romMetadataParser.ConfigLanguageName = Language.Japanese;
+/// romMetadataParser.ConfigLanguageIcon = Language.Japanese;
+/// romMetadataParser.ReadName();
+/// romMetadataParser.ReadIcon();
 /// </code>
 /// </example>
 /// </summary>
