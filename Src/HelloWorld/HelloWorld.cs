@@ -5,6 +5,7 @@ using System.Linq;
 using EmuNX.Lib.MetadataParserNX;
 using EmuNX.Lib.MetadataParserNX.Parser;
 using Godot;
+using LibHac.Settings;
 
 public partial class HelloWorld : Control
 {
@@ -15,14 +16,18 @@ public partial class HelloWorld : Control
 
     #region Rom
 
+    public RomMetadataParser romMetadataParser = new RomMetadataParser();
     public RomMetadata Rom = new RomMetadata();
     #endregion
 
     #region Godot
     public override void _Ready()
     {
+        // Godot
         textureRect = GetNode<TextureRect>("TextureRect");
         richTextLabel = GetNode<RichTextLabel>("RichTextLabel");
+        // Init and start Rom parsing
+        var romMetadataParser = new RomMetadataParser();
         Main();
     }
 
@@ -183,9 +188,22 @@ public partial class HelloWorld : Control
     /// <returns>True or false depending on success</returns>
     private bool ReadRom(string romPath, string prodKeysPath, string titleKeysPath)
     {
+        if (romMetadataParser.CanLoadRootFsFromRom())
+        {
+            Log("Keys already loaded...");
+        }
+        else
+        {
+            Log("Loading keys...");
+            var keysError = romMetadataParser.LoadKeys(prodKeysPath);
+            if (keysError != null)
+            {
+                Log(keysError.ToString());
+                return false;
+            }
+        }
+
         Log("Reading rom...");
-        var romMetadataParser = new RomMetadataParser();
-        if (TrueOnError(romMetadataParser.LoadKeys(prodKeysPath))) return false;
         if (TrueOnError(romMetadataParser.LoadRootFsFromRom(romPath))) return false;
 
         Rom = romMetadataParser.RomMetadata;
