@@ -386,22 +386,22 @@ public class RomMetadataParser
     #endregion
 
     #region Dependency checks
-    private bool CanLoadRootFsFromRom()
+    public bool CanLoadRootFsFromRom()
     {
         return _keyset != null;
     }
     
-    private bool CanLoadCnmt()
+    public bool CanLoadCnmt()
     {
         return CanLoadRootFsFromRom() && _rootFs != null;
     }
         
-    private bool CanLoadControlNca()
+    public bool CanLoadControlNca()
     {
         return CanLoadCnmt() && _controlNcaIdHex != null;
     }
             
-    private bool CanLoadNacp()
+    public bool CanLoadNacp()
     {
         return CanLoadControlNca() && _controlNcaFs != null;
     }
