@@ -18,4 +18,8 @@ public enum RomMetadataParserError
     ControlNcaNotFound,
     ControlNcaReadError,
     ControlReadDependenciesNotComplete,
+    NacpNotFound,
+    NacpReadError,
+    NacpParseError,
+    NacpReadDependenciesNotComplete,
 }

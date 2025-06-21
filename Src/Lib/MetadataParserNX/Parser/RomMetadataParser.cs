@@ -1,3 +1,7 @@
+using System.Runtime.InteropServices;
+using LibHac.Ns;
+using LibHac.Settings;
+
 namespace EmuNX.Lib.MetadataParserNX.Parser;
 
 using System;
@@ -46,6 +50,9 @@ public class RomMetadataParser
 {
     // Result
     public RomMetadata RomMetadata { get; private set; } = new RomMetadata();
+    // Configuration
+    public Language ConfigLanguageName = Language.AmericanEnglish;
+    public Language ConfigLanguageIcon = Language.AmericanEnglish;
     // Keys: prod.keys
     private KeySet _keyset;
     // RootFileSystem: Stores meta.cnmt.nca, control.nca, etc...
@@ -57,6 +64,8 @@ public class RomMetadataParser
     private string _controlNcaIdHex = null;
     private IFileSystem _controlNcaFs = null;
     private UniqueRef<IFile> _controlNcaFile = new UniqueRef<IFile>();
+    // Nacp: Name
+    private ApplicationControlProperty _nacp;
 
     #region Loading
     /// <summary>
@@ -239,6 +248,48 @@ public class RomMetadataParser
 
         return null;
     }
+
+    /// <summary>
+    /// Loads "control.nacp" which stores the ROM name and other data.
+    /// </summary>
+    /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
+    public RomMetadataParserError? LoadNacp()
+    {
+        if (!CanLoadNacp()) return RomMetadataParserError.NacpReadDependenciesNotComplete;
+        DisposeNacp();
+
+        // Search for NACP file
+        using var nacpFile = new UniqueRef<IFile>();
+        var result = _controlNcaFs.OpenFile(ref nacpFile.Ref, (U8Span)"/control.nacp", OpenMode.Read);
+        if (!result.IsSuccess()) return RomMetadataParserError.NacpNotFound;
+
+        // Load NACP and transform it into object
+        const int nacpSize = 0x4000;
+        byte[] nacpBuffer = new byte[nacpSize];
+        using (var nacpStream = nacpFile.Get.AsStream())
+        {
+            // Load NACP stream into buffer
+            int bytesRead = nacpStream.Read(nacpBuffer, 0, nacpSize);
+            if (bytesRead != nacpSize) return RomMetadataParserError.NacpReadError;
+
+            // Transform NACP buffer into easy-to-read object with Marshall
+            GCHandle handle = GCHandle.Alloc(nacpBuffer, GCHandleType.Pinned);
+            try
+            {
+                _nacp = Marshal.PtrToStructure<ApplicationControlProperty>(handle.AddrOfPinnedObject());
+            }
+            catch (Exception)
+            {
+                return RomMetadataParserError.NacpParseError;
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+
+        return null;
+    }
     #endregion
 
     #region Reading
@@ -283,12 +334,20 @@ public class RomMetadataParser
     
     private void DisposeControlNca()
     {
+        // Dispose nested elements
+        DisposeNacp();
         // Free memory
         _controlNcaFs?.Dispose();
         _controlNcaFile.Destroy();
         // Clear references
         _controlNcaFs = null;
         _controlNcaFile = new UniqueRef<IFile>();
+    }
+    
+    private void DisposeNacp()
+    {
+        // Clear references
+        _nacp = new ApplicationControlProperty();
     }
     #endregion
 
@@ -306,6 +365,11 @@ public class RomMetadataParser
     private bool CanLoadControlNca()
     {
         return CanLoadCnmt() && _controlNcaIdHex != null;
+    }
+            
+    private bool CanLoadNacp()
+    {
+        return CanLoadControlNca() && _controlNcaFs != null;
     }
     #endregion
     
