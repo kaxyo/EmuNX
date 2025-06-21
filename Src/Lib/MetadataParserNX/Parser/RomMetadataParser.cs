@@ -14,14 +14,36 @@ using LibHac.Tools.FsSystem.NcaUtils;
 using LibHac.Tools.Ncm;
 
 /// <summary>
+/// <para>
 /// Provides functionality to parse metadata from ROM files (XCI/NSP),
 /// this includes TitleID, Name, and Icon, regardless of language.
+/// </para>
+/// <para>
 /// This class is designed for efficient ROM parsing by avoiding redundant
 /// operations. For example, decryption keys are loaded only once and then
 /// reused to analyze multiple ROMs without the need to reload them again.
+/// </para>
+/// <example>
+/// The parsing process goes like this: Load everything you need and/or
+/// configure some parameters, then you Read the fields. Each Read methods
+/// returns the value and updates the <see cref="RomMetadata"/> object.
+/// <code>
+/// var romMetadataParser = new RomMetadataParser();
+/// // Configure
+/// // Parse and read
+/// romMetadataParser.LoadKeys("~/switch/prod.keys");
+/// romMetadataParser.LoadRootFsFromRom("~/switch/rom.xci"); // Overwrites this.RomMetadata
+/// romMetadataParser.LoadCnmt();
+/// romMetadataParser.ReadId();
+/// // Retrieve
+/// var rom = romMetadataParser.RomMetadata;
+/// </code>
+/// </example>
 /// </summary>
 public class RomMetadataParser
 {
+    // Result
+    public RomMetadata RomMetadata { get; private set; } = new RomMetadata();
     // Keys: prod.keys
     private KeySet _keyset;
     // RootFileSystem: Stores meta.cnmt.nca, control.nca, etc...
@@ -30,7 +52,7 @@ public class RomMetadataParser
     // Cnmt: Metadata that is mostly IDs
     private Cnmt _cnmt;
 
-    #region Parsing process
+    #region Loading
     /// <summary>
     /// Loads the encryption keys from prod.keys file.
     /// These are required to read the metadata.
@@ -144,6 +166,7 @@ public class RomMetadataParser
     public RomMetadataParserError? LoadCnmt()
     {
         if (!CanLoadCnmt()) return RomMetadataParserError.CnmtReadDependenciesNotComplete;
+        DisposeCnmt();
 
         // Find unique NCA with a CNMT file inside
         var cnmtNcaEntry = _rootFs
@@ -180,6 +203,14 @@ public class RomMetadataParser
     }
     #endregion
 
+    #region Reading
+    public ulong ReadId()
+    {
+        RomMetadata.Id = _cnmt.ApplicationTitleId;
+        return RomMetadata.Id;
+    }
+    #endregion
+
     #region Memory management
     private void DisposeKeys()
     {
@@ -191,12 +222,21 @@ public class RomMetadataParser
     
     private void DisposeRootFs()
     {
+        // Dispose nested elements
+        DisposeCnmt();
+        // New metadata
+        RomMetadata = new RomMetadata();
         // Free memory
         _rootFs?.Dispose();
         _rootLocalStorage?.Dispose();
         // Clear references
         _rootFs = null;
         _rootLocalStorage = null;
+    }
+
+    private void DisposeCnmt()
+    {
+        _cnmt = null;
     }
     #endregion
 
