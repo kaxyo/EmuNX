@@ -2,21 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using EmuNX.Lib.MetadataParserNX;
+using EmuNX.Lib.MetadataParserNX.Parser;
 using Godot;
-using LibHac;
-using LibHac.Common;
-using LibHac.Common.Keys;
-using LibHac.Fs;
-using LibHac.Fs.Fsa;
-using LibHac.FsSystem;
-using LibHac.Ns;
-using LibHac.Tools.Fs;
-using LibHac.Tools.FsSystem;
-using LibHac.Tools.FsSystem.NcaUtils;
-using LibHac.Tools.Ncm;
-using LibHac.Util;
-using ContentType = LibHac.Ncm.ContentType;
 
 public partial class HelloWorld : Control
 {
@@ -26,9 +14,8 @@ public partial class HelloWorld : Control
     #endregion
 
     #region Rom
-    private string titleId = "???";
-    private Stream titleIcon;
-    private string titlename = "???";
+
+    public RomMetadata Rom = new RomMetadata();
     #endregion
 
     #region Godot
@@ -74,7 +61,7 @@ public partial class HelloWorld : Control
             if (!success) return;
 
             Log("Opening image");
-            if (!LoadStreamToTextureRect(titleIcon, textureRect))
+            if (!LoadStreamToTextureRect(Rom.Icon, textureRect))
             {
                 Log("Couldn't open");
             }
@@ -97,6 +84,14 @@ public partial class HelloWorld : Control
     {
         GD.Print(message);
         richTextLabel.Text += message + "\n";
+    }
+
+    public bool TrueOnError(RomMetadataParserError? metadataParserError)
+    {
+        if (metadataParserError == null) return false;
+
+        Log(metadataParserError.ToString());
+        return true;
     }
 
     public bool LoadStreamToTextureRect(Stream stream, TextureRect textureRect)
@@ -188,236 +183,26 @@ public partial class HelloWorld : Control
     /// <returns>True or false depending on success</returns>
     private bool ReadRom(string romPath, string prodKeysPath, string titleKeysPath)
     {
-        Result result;
+        Log("Reading rom...");
+        var romMetadataParser = new RomMetadataParser();
+        if (TrueOnError(romMetadataParser.LoadKeys(prodKeysPath))) return false;
+        if (TrueOnError(romMetadataParser.LoadRootFsFromRom(romPath))) return false;
 
-        /* Read keys*/
-        //Load titlekeys
-        Log("Loading prod.keys and title.keys...");
-        KeySet keyset = new KeySet();
-        ExternalKeyReader.ReadKeyFile(keyset, prodKeysPath, titleKeysPath, null, null);
+        Rom = romMetadataParser.RomMetadata;
+        if (TrueOnError(romMetadataParser.LoadCnmt())) return false;
+        romMetadataParser.ReadId();
+        Log($"[color=peru]ID:[/color] [color=green]{Rom.IdString}[/color]");
 
-        /* Read ROM file */
-        // Read extension
-        string romExtension = romPath.Split(".").Last();
+        if (TrueOnError(romMetadataParser.LoadControlNca())) return false;
 
-        // Check extension
-        switch (romExtension)
-        {
-            case "nsp":
-                Log("This rom will be read as NSP");
-                break;
+        if (TrueOnError(romMetadataParser.LoadNacp())) return false;
+        romMetadataParser.ReadName();
+        Log($"[color=peru]Name:[/color] [color=green]{Rom.Name}[/color]");
 
-            case "xci":
-                Log("This rom will be read as XCI");
-                break;
+        romMetadataParser.ReadIcon();
+        Log($"[color=peru]Icon:[/color] [color={(Rom.Icon == null ? "red]no" : "green]yes")}[/color]");
 
-            default:
-                Log("This file doesn't have NSP or XCI extension");
-                return false;
-        }
-
-        // Load file
-        using var file = new LocalStorage(romPath, System.IO.FileAccess.Read);
-
-        // Get fs
-        IFileSystem fs = null;
-
-        switch (romExtension)
-        {
-            case "nsp":
-                fs = OpenNspFileSystem(file, keyset);
-                break;
-
-            case "xci":
-                fs = OpenXciFileSystem(file, keyset);
-                break;
-        }
-
-        if (fs == null)
-        {
-            Log("Couldn't open FileSystem");
-            return false;
-        }
-
-        /* Search CNMT */
-        // Search CNMT inside ROM
-        Log("Searching for CNMT inside ROM...");
-        DirectoryEntryEx cnmtNcaEntry = null;
-        foreach (DirectoryEntryEx entry in fs.EnumerateEntries()) // 👀 fs.EnumerateEntries("*.nca", SearchOptions.Default).Any()
-        {
-            string line = $"\t{entry.Name}";
-            if (entry.Name.EndsWith(".cnmt.nca"))
-            {
-                cnmtNcaEntry = entry;
-                line += " 👈";
-            }
-            ;
-            Log(line);
-
-        }
-        Log("Done!");
-
-        Log(cnmtNcaEntry == null ? "No CNTM.NCA was found..." : "CNTM.NCA was found!");
-        if (cnmtNcaEntry == null) return false;
-
-        /* Read CNMT */
-        // Prepares CNMT NCA reader
-        Log("Opening CNMT.NCA file...");
-        using var cnmtNcaFile = new UniqueRef<IFile>();
-        result = fs.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
-
-        Log(result.IsSuccess() ? "CNMT.NCA has been open!" : "Couldn't open CNMT.NCA");
-        if (!result.IsSuccess()) return false;
-
-        // Open CNMT NCA FyleSystem
-        Log("Parsing CNMT.NCA FileSystem...");
-        var cnmtNca = new Nca(keyset, cnmtNcaFile.Get.AsStorage());
-        IFileSystem cnmtNcaFs = cnmtNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
-
-        // Get the first CNMT file stream
-        Log("Searching internal CNMT file...");
-        U8Span cnmtPath = (U8Span)cnmtNcaFs.EnumerateEntries("/", "*.cnmt").Single().FullPath;
-        using var cnmtFile = new UniqueRef<IFile>();
-        result = cnmtNcaFs.OpenFile(ref cnmtFile.Ref, cnmtPath, OpenMode.Read);
-
-        Log(result.IsSuccess() ? "CNMT has been open!" : "Couldn't open CNMT");
-        if (!result.IsSuccess()) return false;
-
-        // Parse CNMT from previously opened stream
-        Log("Parsing CNMT...");
-        var cnmt = new Cnmt(cnmtFile.Get.AsStream());
-
-        titleId = $"{cnmt.ApplicationTitleId:X}";
-        Log($"[color=yellow]ApplicationTitleId: {cnmt.ApplicationTitleId:X}[/color]");
-
-        // Search control entry
-        CnmtContentEntry control = cnmt.ContentEntries.FirstOrDefault(e => e.Type == ContentType.Control);
-
-        Log(control == null ? "Control entry was not found" : "Control entry was found!");
-        if (control == null) return false;
-
-        /* Read CONTROL NCA */
-        // Generate CONTROL NCA path
-        string controlNcaPath = $"{control.NcaId.ToHexString().ToLower()}.nca";
-
-        // Search CONTROL NCA
-        Log($"Searching for {controlNcaPath} inside NSP...");
-        DirectoryEntryEx controlNcaEntry = fs.EnumerateEntries().FirstOrDefault(e => e.Name == controlNcaPath);
-
-        Log(controlNcaEntry == null ? "No CONTROL NCA was found..." : "CONTROL NCA was found!");
-        if (controlNcaEntry == null) return false;
-
-        // Prepares CONTROL NCA reader
-        Log("Opening CONTROL.NCA file...");
-        using var controlNcaFile = new UniqueRef<IFile>();
-        result = fs.OpenFile(ref controlNcaFile.Ref, (U8Span)controlNcaEntry.FullPath, OpenMode.All);
-
-        Log(result.IsSuccess() ? "CONTROL.NCA has been open!" : "Couldn't open CONTROL.NCA");
-        if (!result.IsSuccess()) return false;
-
-        // Open CNMT NCA FyleSystem
-        Log("Parsing CONTROL.NCA FileSystem...");
-        var controlNca = new Nca(keyset, controlNcaFile.Get.AsStorage());
-        IFileSystem controlNcaFs = controlNca.OpenFileSystem(NcaSectionType.Data, IntegrityCheckLevel.ErrorOnInvalid);
-
-        Log("[color=yellow]Listing CONTROL.NCA entries...[/color]");
-        foreach (var entry in controlNcaFs.EnumerateEntries("/", "*"))
-        {
-            Log($"\t[color=peru]{entry.FullPath}[/color]");
-        }
-
-        /* Parse icon */
-        // Open file
-        using var iconFile = new UniqueRef<IFile>();
-        result = controlNcaFs.OpenFile(ref iconFile.Ref, (U8Span)"/icon_AmericanEnglish.dat", OpenMode.Read);
-
-        Log(result.IsSuccess() ? "ICON has been open!" : "Couldn't open ICON");
-        if (!result.IsSuccess()) return false;
-
-        // Copy stream
-        Log("Copying ICON stream for later use...");
-        using (var tempStream = iconFile.Get.AsStream())
-        {
-            titleIcon = new MemoryStream();
-            tempStream.CopyTo(titleIcon);
-            titleIcon.Position = 0;
-        }
-
-        /* Parse CONTROL NCAP */
-        Log("Opening control.nacp file...");
-        using var nacpFile = new UniqueRef<IFile>();
-        controlNcaFs.OpenFile(ref nacpFile.Ref, (U8Span)"/control.nacp", OpenMode.Read);
-
-        Log(result.IsSuccess() ? "NACP has been open!" : "Couldn't open NACP");
-        if (!result.IsSuccess()) return false;
-
-        Log("Parsing control.nacp as ApplicationControlProperty...");
-
-        const int nacpSize = 0x4000;
-        byte[] nacpBuffer = new byte[nacpSize];
-
-        using (var nacpStream = nacpFile.Get.AsStream())
-        {
-            int bytesRead = nacpStream.Read(nacpBuffer, 0, nacpSize);
-            if (bytesRead != nacpSize)
-            {
-                Log($"Couldn't read first {nacpSize} bytes from control.nacp");
-                return false;
-            }
-
-            GCHandle handle = GCHandle.Alloc(nacpBuffer, GCHandleType.Pinned);
-            try
-            {
-                ApplicationControlProperty nacp = Marshal.PtrToStructure<ApplicationControlProperty>(handle.AddrOfPinnedObject());
-
-                titlename = nacp.Title.Items[(int)ApplicationControlProperty.Language.AmericanEnglish].NameString.ToString();
-                Log($"[color=yellow]Game title (AmericanEnglish): {titlename}[/color]");
-            }
-            catch (Exception)
-            {
-                Log($"Marshal failed to parse ApplicationControlProperty from bytes :(");
-                return false;
-            }
-            finally
-            {
-                handle.Free();
-            }
-
-            return true;
-        }
-    }
-
-    private IFileSystem OpenNspFileSystem(LocalStorage file, KeySet keyset)
-    {
-        using var pfs = new UniqueRef<PartitionFileSystem>();
-        pfs.Reset(new PartitionFileSystem());
-        Result result = pfs.Get.Initialize(file);
-
-        bool success = result.IsSuccess();
-
-        if (success)
-        {
-            return pfs.Release();
-        }
-        else
-        {
-            Log($"Couldn't open NSP");
-            return null;
-        }
-    }
-
-    private IFileSystem OpenXciFileSystem(LocalStorage file, KeySet keyset)
-    {
-        try
-        {
-            var xci = new Xci(keyset, file);
-            return xci.OpenPartition(XciPartitionType.Secure);
-        }
-        catch (Exception ex)
-        {
-            Log($"Couldn't open XCI: {ex.Message}");
-            return null;
-        }
+        return true;
     }
     #endregion
 }
