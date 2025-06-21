@@ -298,6 +298,12 @@ public class RomMetadataParser
         RomMetadata.Id = _cnmt.ApplicationTitleId;
         return RomMetadata.Id;
     }
+
+    public string ReadName()
+    {
+        RomMetadata.Name = _nacp.Title.Items[ConfigLanguageName.GetEntryIndex()].NameString.ToString();
+        return RomMetadata.Name;
+    }
     #endregion
 
     #region Memory management
