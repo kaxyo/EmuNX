@@ -1,17 +1,16 @@
-using System.Runtime.InteropServices;
-using LibHac.Ns;
-using LibHac.Settings;
-
 namespace EmuNX.Lib.MetadataParserNX.Parser;
 
 using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using LibHac.Common;
 using LibHac.Common.Keys;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
+using LibHac.Ns;
+using LibHac.Settings;
 using LibHac.Tools.Fs;
 using LibHac.Tools.FsSystem;
 using LibHac.Tools.FsSystem.NcaUtils;
@@ -303,6 +302,24 @@ public class RomMetadataParser
     {
         RomMetadata.Name = _nacp.Title.Items[ConfigLanguageName.GetEntryIndex()].NameString.ToString();
         return RomMetadata.Name;
+    }
+    
+    public Stream ReadIcon()
+    {
+        // Avoid null pointer
+        if (_controlNcaFs == null)
+        {
+            RomMetadata.Icon = null;
+            return null;
+        }
+
+        // Load file
+        using var iconFile = new UniqueRef<IFile>();
+        var result = _controlNcaFs.OpenFile(ref iconFile.Ref, (U8Span)ConfigLanguageIcon.GetIconPath(), OpenMode.Read);
+
+        // Copy Icon stream
+        RomMetadata.Icon = result.IsSuccess() ? iconFile.Get.AsStream() : null;
+        return RomMetadata.Icon;
     }
     #endregion
 

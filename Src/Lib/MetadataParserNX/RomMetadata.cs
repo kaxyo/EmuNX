@@ -27,7 +27,7 @@ public class RomMetadata : IDisposable
     public Stream Icon
     {
         get => _icon;
-        private set
+        set
         {
             DisposeIcon();
             if (value == null) return;
