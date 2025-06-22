@@ -1,12 +1,17 @@
-[gd_scene format=3 uid="uid://b6kih382bu0ko"]
+[gd_scene load_steps=3 format=3 uid="uid://b6kih382bu0ko"]
 
-[node name="Home" type="Control"]
+[ext_resource type="PackedScene" uid="uid://cjqil1ewva0cp" path="res://Src/Gui/Components/GameTile/GameTile.tscn" id="1_e8xbj"]
+[ext_resource type="Script" uid="uid://elt42a3v7o3" path="res://Src/Gui/Views/Home/ViewHome.cs" id="1_fx86t"]
+
+[node name="ViewHome" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_fx86t")
+SceneGameTile = ExtResource("1_e8xbj")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -16,5 +21,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="GameRow" type="HBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
