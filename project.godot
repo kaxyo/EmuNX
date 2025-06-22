@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="EmuNX"
-run/main_scene="uid://5flviqltbd1l"
+run/main_scene="uid://b6kih382bu0ko"
 config/features=PackedStringArray("4.4", "C#")
 config/icon="res://Assets/icon.svg"
 
