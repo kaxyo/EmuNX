@@ -77,6 +77,27 @@ public class RomMetadataParser
     // Nacp: Name
     private ApplicationControlProperty _nacp;
 
+    /// <summary>
+    /// Reads all metadata from a ROM.
+    /// </summary>
+    /// <param name="romPath"></param>
+    /// <returns>RomMetadataParserError if an error occurs, otherwise null.</returns>
+    public RomMetadataParserError? LoadAndReadEverythingFromRom(string romPath)
+    {
+        RomMetadataParserError? error;
+
+        if ((error = LoadRootFsFromRom(romPath)) != null) return error;
+        if ((error = LoadCnmt()                ) != null) return error;
+        if ((error = LoadControlNca()          ) != null) return error;
+        if ((error = LoadNacp()                ) != null) return error;
+
+        ReadId();
+        ReadName();
+        ReadIcon();
+
+        return null;
+    }
+
     #region Loading
     /// <summary>
     /// Loads the encryption keys from prod.keys file.
