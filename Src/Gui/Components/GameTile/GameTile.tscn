@@ -3,19 +3,12 @@
 [ext_resource type="Script" uid="uid://dqx3qvhsktdkd" path="res://Src/Gui/Components/GameTile/GameTile.cs" id="1_6r04y"]
 [ext_resource type="Texture2D" uid="uid://c271dle0ph6r8" path="res://Assets/icon.svg" id="1_42y5q"]
 
-[node name="Control" type="Control"]
-layout_mode = 3
-anchors_preset = 0
-offset_right = 128.0
-offset_bottom = 128.0
-script = ExtResource("1_6r04y")
-
-[node name="GameTile" type="AspectRatioContainer" parent="."]
-layout_mode = 0
+[node name="GameTile" type="AspectRatioContainer"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
+script = ExtResource("1_6r04y")
 
-[node name="Icon" type="TextureRect" parent="GameTile"]
+[node name="Icon" type="TextureRect" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("1_42y5q")

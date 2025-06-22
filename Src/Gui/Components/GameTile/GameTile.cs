@@ -4,9 +4,9 @@ using Godot;
 
 namespace EmuNX.Gui.Components.GameTile;
 
-public partial class GameTile : Control
+public partial class GameTile : AspectRatioContainer
 {
-    private RomMetadata Data;
+    private RomMetadata Metadata;
     private TextureRect _nodeIcon;
 
     public override void _Ready()
@@ -14,27 +14,27 @@ public partial class GameTile : Control
         _nodeIcon = GetNode<TextureRect>("%Icon");
     }
 
-    public void Init(RomMetadata data)
+    public void Init(RomMetadata metadata)
     {
-        Data = data;
+        Metadata = metadata;
     }
 
     /// <summary>
-    /// Loads the icon image from <see cref="Data"/> and overwrites the
+    /// Loads the icon image from <see cref="Metadata"/> and overwrites the
     /// previous image.
     /// </summary>
     /// <returns>True if the Icon was loaded</returns>
     public bool LoadIcon()
     {
         // Validate icon stream from Data
-        if (Data?.Icon is not { CanRead: true })
+        if (Metadata?.Icon is not { CanRead: true })
             return true;
 
         try
         {
             // Convert bytes from stream to array
             using var ms = new MemoryStream();
-            Data.Icon.CopyTo(ms);
+            Metadata.Icon.CopyTo(ms);
             byte[] buffer = ms.ToArray();
 
             // Load stream as JPG image
