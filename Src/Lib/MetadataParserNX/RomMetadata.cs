@@ -1,7 +1,7 @@
-namespace EmuNX.Lib.MetadataParserNX;
-
 using System;
 using System.IO;
+
+namespace EmuNX.Lib.MetadataParserNX;
 
 /// <summary>
 /// Contains the basic metadata of a ROM.

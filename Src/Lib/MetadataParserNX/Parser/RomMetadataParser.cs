@@ -1,5 +1,3 @@
-namespace EmuNX.Lib.MetadataParserNX.Parser;
-
 using System;
 using System.IO;
 using System.Linq;
@@ -17,6 +15,10 @@ using LibHac.Tools.FsSystem.NcaUtils;
 using LibHac.Tools.Ncm;
 using LibHac.Util;
 using ContentType = LibHac.Ncm.ContentType;
+
+namespace EmuNX.Lib.MetadataParserNX.Parser;
+
+using ContentType = ContentType;
 
 /// <summary>
 /// <para>
@@ -297,26 +299,24 @@ public class RomMetadataParser
         // Load NACP and transform it into object
         const int nacpSize = 0x4000;
         byte[] nacpBuffer = new byte[nacpSize];
-        using (var nacpStream = nacpFile.Get.AsStream())
-        {
-            // Load NACP stream into buffer
-            int bytesRead = nacpStream.Read(nacpBuffer, 0, nacpSize);
-            if (bytesRead != nacpSize) return RomMetadataParserError.NacpReadError;
+        using var nacpStream = nacpFile.Get.AsStream();
+        // Load NACP stream into buffer
+        int bytesRead = nacpStream.Read(nacpBuffer, 0, nacpSize);
+        if (bytesRead != nacpSize) return RomMetadataParserError.NacpReadError;
 
-            // Transform NACP buffer into easy-to-read object with Marshall
-            GCHandle handle = GCHandle.Alloc(nacpBuffer, GCHandleType.Pinned);
-            try
-            {
-                _nacp = Marshal.PtrToStructure<ApplicationControlProperty>(handle.AddrOfPinnedObject());
-            }
-            catch (Exception)
-            {
-                return RomMetadataParserError.NacpParseError;
-            }
-            finally
-            {
-                handle.Free();
-            }
+        // Transform NACP buffer into easy-to-read object with Marshall
+        GCHandle handle = GCHandle.Alloc(nacpBuffer, GCHandleType.Pinned);
+        try
+        {
+            _nacp = Marshal.PtrToStructure<ApplicationControlProperty>(handle.AddrOfPinnedObject());
+        }
+        catch (Exception)
+        {
+            return RomMetadataParserError.NacpParseError;
+        }
+        finally
+        {
+            handle.Free();
         }
 
         return null;

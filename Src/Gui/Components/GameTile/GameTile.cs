@@ -6,7 +6,7 @@ namespace EmuNX.Gui.Components.GameTile;
 
 public partial class GameTile : AspectRatioContainer
 {
-    private RomMetadata Metadata;
+    private RomMetadata _metadata;
     private TextureRect _nodeIcon;
 
     public override void _Ready()
@@ -16,25 +16,25 @@ public partial class GameTile : AspectRatioContainer
 
     public void Init(RomMetadata metadata)
     {
-        Metadata = metadata;
+        _metadata = metadata;
     }
 
     /// <summary>
-    /// Loads the icon image from <see cref="Metadata"/> and overwrites the
+    /// Loads the icon image from <see cref="_metadata"/> and overwrites the
     /// previous image.
     /// </summary>
     /// <returns>True if the Icon was loaded</returns>
     public bool LoadIcon()
     {
         // Validate icon stream from Data
-        if (Metadata?.Icon is not { CanRead: true })
+        if (_metadata?.Icon is not { CanRead: true })
             return true;
 
         try
         {
             // Convert bytes from stream to array
             using var ms = new MemoryStream();
-            Metadata.Icon.CopyTo(ms);
+            _metadata.Icon.CopyTo(ms);
             byte[] buffer = ms.ToArray();
 
             // Load stream as JPG image
