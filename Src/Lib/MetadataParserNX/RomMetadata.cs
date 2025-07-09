@@ -38,13 +38,16 @@ public class RomMetadata : IDisposable
         
     }
 
-    public RomMetadata() : this(null, 0, null) {}
+    public bool PromptsForUser;
+
+    public RomMetadata() : this(null, 0, null, true) {}
     
-    public RomMetadata(string name, ulong id, Stream icon)
+    public RomMetadata(string name, ulong id, Stream icon, bool promptsForUser)
     {
         Name = name;
         Id = id;
         Icon = icon;
+        PromptsForUser = promptsForUser;
     }
 
     private void DisposeIcon()

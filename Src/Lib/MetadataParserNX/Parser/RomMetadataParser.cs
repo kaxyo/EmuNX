@@ -55,6 +55,7 @@ using ContentType = ContentType;
 /// romMetadataParser.ConfigLanguageIcon = Language.Japanese;
 /// romMetadataParser.ReadName();
 /// romMetadataParser.ReadIcon();
+/// romMetadataParser.ReadPromptsForUser();
 /// </code>
 /// </example>
 /// </summary>
@@ -96,6 +97,7 @@ public class RomMetadataParser
         ReadId();
         ReadName();
         ReadIcon();
+        ReadPromptsForUser();
 
         return null;
     }
@@ -352,6 +354,12 @@ public class RomMetadataParser
         // Copy Icon stream
         RomMetadata.Icon = result.IsSuccess() ? iconFile.Get.AsStream() : null;
         return RomMetadata.Icon;
+    }
+    
+    public bool ReadPromptsForUser()
+    {
+        RomMetadata.PromptsForUser = _nacp.StartupUserAccount != ApplicationControlProperty.StartupUserAccountValue.None;
+        return RomMetadata.PromptsForUser;
     }
     #endregion
 
