@@ -1,6 +1,6 @@
 ﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuNX", "EmuNX.csproj", "{F25E3D9E-2CA6-49FC-B4F1-939556CC0E78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuNX.Frontend.Godot", "src/EmuNX.Frontend.Godot/EmuNX.Frontend.Godot.csproj", "{F25E3D9E-2CA6-49FC-B4F1-939556CC0E78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

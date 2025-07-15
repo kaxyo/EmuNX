@@ -1,0 +1,13 @@
+<Project Sdk="Godot.NET.Sdk/4.4.1">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Ryujinx.LibHac" Version="0.20.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="EmuNX.Frontend.Godot\export_presets.cfg" />
+    <Content Include="EmuNX.Frontend.Godot\project.godot" />
+  </ItemGroup>
+</Project>
