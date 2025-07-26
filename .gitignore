@@ -9,5 +9,9 @@ bin/
 obj/
 *.sln.DotSettings.user
 
+# Temporary files
+*.tmp
+*.temp
+
 # EmuNX
 target/
