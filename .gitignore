@@ -1,9 +1,6 @@
 # Editors
 .idea/
 
-# Godot 4+ specific ignores
-.godot/
-
 # CSHARP specific ignores
 bin/
 obj/
