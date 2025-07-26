@@ -2,6 +2,8 @@
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuNX.Frontend.Godot", "src/EmuNX.Frontend.Godot/EmuNX.Frontend.Godot.csproj", "{F25E3D9E-2CA6-49FC-B4F1-939556CC0E78}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuNX.Core.RomMetadata", "src\EmuNX.Core.RomMetadata\EmuNX.Core.RomMetadata.csproj", "{D4762B53-0CF1-4B8C-B678-66CFC55854ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 	Debug|Any CPU = Debug|Any CPU
@@ -15,5 +17,11 @@ Global
 		{F25E3D9E-2CA6-49FC-B4F1-939556CC0E78}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
 		{F25E3D9E-2CA6-49FC-B4F1-939556CC0E78}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
 		{F25E3D9E-2CA6-49FC-B4F1-939556CC0E78}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+		{D4762B53-0CF1-4B8C-B678-66CFC55854ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4762B53-0CF1-4B8C-B678-66CFC55854ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4762B53-0CF1-4B8C-B678-66CFC55854ED}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4762B53-0CF1-4B8C-B678-66CFC55854ED}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{D4762B53-0CF1-4B8C-B678-66CFC55854ED}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4762B53-0CF1-4B8C-B678-66CFC55854ED}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
