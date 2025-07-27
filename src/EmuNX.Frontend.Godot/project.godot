@@ -17,7 +17,7 @@ config/icon="res://Assets/icon.svg"
 
 [dotnet]
 
-project/assembly_name="EmuNX"
+project/assembly_name="EmuNX.Frontend.Godot"
 
 [rendering]
 
