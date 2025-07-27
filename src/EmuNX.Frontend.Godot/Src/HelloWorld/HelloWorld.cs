@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EmuNX.Core.RomMetadata.Parser;
+using EmuNX.Core.RomMetadata.Types;
 using EmuNX.Lib.MetadataParserNX;
 using EmuNX.Lib.MetadataParserNX.Parser;
 using Godot;
@@ -46,7 +48,7 @@ public partial class HelloWorld : Control
         Log("[outline_color=#ffffff60][outline_size=6][rainbow freq=0.5 sat=0.8 val=0.8 speed=0.5][wave]Hello from EmuNX :)[/wave][/rainbow][/outline_size][/outline_color]");
 
         // Load files used in testing
-        string[] paths = LoadFilePaths(ProjectSettings.GlobalizePath("res://Target/locations.txt"));
+        string[] paths = LoadFilePaths(ProjectSettings.GlobalizePath("res://.godot/locations.txt"));
         if (paths == null)
         {
             Log("Cannot continue without valid paths");
@@ -58,8 +60,7 @@ public partial class HelloWorld : Control
         {
             bool success = ReadRom(
                 paths[0], // NSP|XCI
-                paths[1], // PROD.KEYS
-                paths[2]  // TITLE.KEYS
+                paths[1] // PROD.KEYS
             );
 
             Log($"[color={(success ? "green]" : "red]")}ReadRom() ended with {(success ? "success" : "failure")}[/color]");
@@ -143,9 +144,9 @@ public partial class HelloWorld : Control
 
         string[] paths = File.ReadLines(locationsPath).ToArray();
 
-        if (paths.Length != 3)
+        if (paths.Length != 2)
         {
-            Log($"File does not have three lines");
+            Log($"File does not have two lines");
             return null;
         }
 
@@ -154,7 +155,6 @@ public partial class HelloWorld : Control
         {
             { "ROM", paths[0] },
             { "PROD.KEYS", paths[1] },
-            { "TITLE.KEYS", paths[2] }
         };
 
         int lineNumber = 1;
@@ -184,9 +184,8 @@ public partial class HelloWorld : Control
     /// </summary>
     /// <param name="romPath">Software path</param>
     /// <param name="prodKeysPath">prod.keys path</param>
-    /// <param name="titleKeysPath">title.keys path</param>
     /// <returns>True or false depending on success</returns>
-    private bool ReadRom(string romPath, string prodKeysPath, string titleKeysPath)
+    private bool ReadRom(string romPath, string prodKeysPath)
     {
         if (romMetadataParser.CanLoadRootFsFromRom())
         {
@@ -224,3 +223,4 @@ public partial class HelloWorld : Control
     }
     #endregion
 }
+

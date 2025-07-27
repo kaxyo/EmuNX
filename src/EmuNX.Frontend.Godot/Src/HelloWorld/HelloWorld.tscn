@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://5flviqltbd1l"]
 
-[ext_resource type="Script" uid="uid://dsukt1qrkyhe" path="res://Src/HelloWorld/HelloWorld.cs" id="1_ptmid"]
+[ext_resource type="Script" uid="uid://cph0h4kr8yyou" path="res://Src/HelloWorld/HelloWorld.cs" id="1_ptmid"]
 
 [node name="Test" type="Control"]
 layout_mode = 3
