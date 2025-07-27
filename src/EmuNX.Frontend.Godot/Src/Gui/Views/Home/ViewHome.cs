@@ -1,10 +1,10 @@
 using System.IO;
 using System.Linq;
-using EmuNX.Gui.Components.GameTile;
-using EmuNX.Lib.MetadataParserNX.Parser;
+using EmuNX.Core.RomMetadata.Parser;
+using EmuNX.Frontend.Godot.Gui.Components.GameTile;
 using Godot;
 
-namespace EmuNX.Gui.Views.Home;
+namespace EmuNX.Frontend.Godot.Gui.Views.Home;
 
 public partial class ViewHome : Control
 {
@@ -24,7 +24,7 @@ public partial class ViewHome : Control
 		}
 
 		// Load paths from file
-		string locationsFilePath = ProjectSettings.GlobalizePath("res://Target/locations.txt");
+		string locationsFilePath = ProjectSettings.GlobalizePath("res://.godot/locations.txt");
 		string[] paths = LoadFilePaths(locationsFilePath);
 		if (paths == null)
 		{
@@ -83,6 +83,13 @@ public partial class ViewHome : Control
 		{
 			GD.Print($"File does not have two lines");
 			return null;
+		}
+
+		// If the first line is a file (likely for testing HelloWorld) get the parent
+		if (File.Exists(paths[0]))
+		{
+			string parentDir = Path.GetDirectoryName(paths[0]);
+			if (!string.IsNullOrEmpty(parentDir)) paths[0] = parentDir;
 		}
 
 		// Validate paths

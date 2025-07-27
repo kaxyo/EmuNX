@@ -1,8 +1,8 @@
 using System.IO;
-using EmuNX.Lib.MetadataParserNX;
+using EmuNX.Core.RomMetadata.Types;
 using Godot;
 
-namespace EmuNX.Gui.Components.GameTile;
+namespace EmuNX.Frontend.Godot.Gui.Components.GameTile;
 
 public partial class GameTile : AspectRatioContainer
 {
