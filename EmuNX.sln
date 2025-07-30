@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuNX.Core.RomMetadata", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuNX.Core.Common", "src\EmuNX.Core.Common\EmuNX.Core.Common.csproj", "{3E70A699-CC9A-435A-9FE6-8C865C9E17C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.EmuNX.Core.Common", "tests\Tests.EmuNX.Core.Common\Tests.EmuNX.Core.Common.csproj", "{6B94E81D-B315-41BD-93D8-91D13415A346}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 	Debug|Any CPU = Debug|Any CPU
@@ -31,5 +33,11 @@ Global
 		{3E70A699-CC9A-435A-9FE6-8C865C9E17C2}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
 		{3E70A699-CC9A-435A-9FE6-8C865C9E17C2}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
 		{3E70A699-CC9A-435A-9FE6-8C865C9E17C2}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{6B94E81D-B315-41BD-93D8-91D13415A346}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B94E81D-B315-41BD-93D8-91D13415A346}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B94E81D-B315-41BD-93D8-91D13415A346}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B94E81D-B315-41BD-93D8-91D13415A346}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{6B94E81D-B315-41BD-93D8-91D13415A346}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B94E81D-B315-41BD-93D8-91D13415A346}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 EndGlobal
