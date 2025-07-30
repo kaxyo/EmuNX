@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EmuNX.Core.RomMetadata.Parser;
@@ -38,6 +39,7 @@ public partial class ViewHome : Control
 
 		// Get roms paths
 		string[] romsPaths = Directory.GetFiles(paths[0]);
+		var hello = new List<string>();
 		foreach (var romPath in romsPaths)
 		{
 			// Parse rom
@@ -49,8 +51,14 @@ public partial class ViewHome : Control
 			// Instantiaate
 			var gameTile = (GameTile)SceneGameTile.Instantiate();
 			gameTile.Init(rmp.RomMetadata);
+			hello.Add(rmp.RomMetadata.Id.Hex);
 			_nodeGameRow.AddChild(gameTile);
 			gameTile.LoadIcon();
+		}
+
+		foreach (var aaa in hello)
+		{
+			GD.Print(aaa);
 		}
 	}
 

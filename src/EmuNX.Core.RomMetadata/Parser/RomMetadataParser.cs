@@ -1,4 +1,8 @@
 using System.Runtime.InteropServices;
+using EmuNX.Core.Common.Types;
+using EmuNX.Core.RomMetadata.Types;
+using EmuNX.Core.RomMetadata.Types.Extensions;
+using EmuNX.Lib.MetadataParserNX.Parser;
 using LibHac.Common;
 using LibHac.Common.Keys;
 using LibHac.Fs;
@@ -11,9 +15,6 @@ using LibHac.Tools.FsSystem.NcaUtils;
 using LibHac.Tools.Ncm;
 using LibHac.Util;
 using ContentType = LibHac.Ncm.ContentType;
-using EmuNX.Core.RomMetadata.Types;
-using EmuNX.Core.RomMetadata.Types.Extensions;
-using EmuNX.Lib.MetadataParserNX.Parser;
 
 namespace EmuNX.Core.RomMetadata.Parser;
 
@@ -330,9 +331,10 @@ public class RomMetadataParser
     #endregion
 
     #region Reading
-    public ulong ReadId()
+    public TitleId ReadId()
     {
-        RomMetadata.Id = _cnmt?.ApplicationTitleId ?? 0;
+        var titleId = _cnmt?.ApplicationTitleId ?? 0;
+        RomMetadata.Id = new TitleId(titleId);
         return RomMetadata.Id;
     }
 

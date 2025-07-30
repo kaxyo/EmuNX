@@ -1,3 +1,5 @@
+using EmuNX.Core.Common.Types;
+
 namespace EmuNX.Core.RomMetadata.Types;
 
 /// <summary>
@@ -7,18 +9,7 @@ public class RomMetadata : IDisposable
 {
     public string Name;
 
-    private ulong _id;
-    public ulong Id
-    {
-        get => _id;
-        set
-        {
-            _id = value;
-            IdString = $"{_id:X}";
-        }
-    }
-
-    public string IdString { get; private set; } = "";
+    public TitleId Id;
 
     private MemoryStream? _icon;
     public Stream? Icon
@@ -37,9 +28,9 @@ public class RomMetadata : IDisposable
 
     public bool PromptsForUser;
 
-    public RomMetadata() : this("", 0, null, true) {}
+    public RomMetadata() : this("", new TitleId(0), null, true) {}
     
-    public RomMetadata(string name, ulong id, Stream? icon, bool promptsForUser)
+    public RomMetadata(string name, TitleId id, Stream? icon, bool promptsForUser)
     {
         Name = name;
         Id = id;

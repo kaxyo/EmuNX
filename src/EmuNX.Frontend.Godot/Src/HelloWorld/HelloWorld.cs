@@ -208,7 +208,7 @@ public partial class HelloWorld : Control
         Rom = romMetadataParser.RomMetadata;
         if (TrueOnError(romMetadataParser.LoadCnmt())) return false;
         romMetadataParser.ReadId();
-        Log($"[color=peru]ID:[/color] [color=green]{Rom.IdString}[/color]");
+        Log($"[color=peru]ID:[/color] [color=green]{Rom.Id.Hex}[/color]");
 
         if (TrueOnError(romMetadataParser.LoadControlNca())) return false;
 
