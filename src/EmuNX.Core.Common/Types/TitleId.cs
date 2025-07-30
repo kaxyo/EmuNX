@@ -5,7 +5,7 @@ namespace EmuNX.Core.Common.Types;
 /// </summary>
 public class TitleId
 {
-    private readonly ulong Num;
+    public readonly ulong Num;
 
     public TitleId(ulong num)
     {
