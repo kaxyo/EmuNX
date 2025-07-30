@@ -14,10 +14,11 @@ public class TitleId
 
     public TitleId(string hex)
     {
-        if (!ulong.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out Num))
-        {
+        var isLengthBad = string.IsNullOrEmpty(hex) || hex.Length != 16;
+        var wasNotParsed = !ulong.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out Num);
+        
+        if (isLengthBad || wasNotParsed)
             throw new ArgumentException("Invalid hexadecimal format for TitleId.");
-        }
     }
 
     public string Hex => Num.ToString("X16");
