@@ -7,9 +7,9 @@ using EmuNX.Core.Common.Types;
 public class TitleIdTests
 {
     [Theory]
-    [InlineData(0x1004D300C5AE000, "1004D300C5AE000")]
-    [InlineData(0x1007E3006DDA000, "1007E3006DDA000")]
-    [InlineData(0x1006B601380E000, "1006B601380E000")]
+    [InlineData(0x01004D300C5AE000, "01004D300C5AE000")]
+    [InlineData(0x01007E3006DDA000, "01007E3006DDA000")]
+    [InlineData(0x01006B601380E000, "01006B601380E000")]
     public void Constructor_WithNum_SetsProperties(ulong num, string expectedHex)
     {
         var titleId = new TitleId(num);
@@ -21,9 +21,9 @@ public class TitleIdTests
     
     
     [Theory]
-    [InlineData("1004D300C5AE000", 0x1004D300C5AE000)]
-    [InlineData("1007E3006DDA000", 0x1007E3006DDA000)]
-    [InlineData("1006B601380E000", 0x1006B601380E000)]
+    [InlineData("01004D300C5AE000", 0x01004D300C5AE000)]
+    [InlineData("01007E3006DDA000", 0x01007E3006DDA000)]
+    [InlineData("01006B601380E000", 0x01006B601380E000)]
     public void Constructor_WithValidHexString_ParsesCorrectly(string hex, ulong expectedNum)
     {
         var titleId = new TitleId(hex);
