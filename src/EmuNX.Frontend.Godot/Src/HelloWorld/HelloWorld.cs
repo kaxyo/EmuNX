@@ -4,8 +4,6 @@ using System.IO;
 using System.Linq;
 using EmuNX.Core.RomMetadata.Parser;
 using EmuNX.Core.RomMetadata.Types;
-using EmuNX.Lib.MetadataParserNX;
-using EmuNX.Lib.MetadataParserNX.Parser;
 using Godot;
 using LibHac.Settings;
 
