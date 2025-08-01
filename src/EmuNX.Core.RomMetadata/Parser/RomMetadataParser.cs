@@ -2,7 +2,6 @@ using System.Runtime.InteropServices;
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.RomMetadata.Types;
 using EmuNX.Core.RomMetadata.Types.Extensions;
-using EmuNX.Lib.MetadataParserNX.Parser;
 using LibHac.Common;
 using LibHac.Common.Keys;
 using LibHac.Fs;
@@ -230,7 +229,7 @@ public class RomMetadataParser
 
         // Read NCA stream
         using var cnmtNcaFile = new UniqueRef<IFile>();
-        var result = _rootFs.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
+        var result = _rootFs!.OpenFile(ref cnmtNcaFile.Ref, (U8Span)cnmtNcaEntry.FullPath, OpenMode.All);
         if (result.IsFailure()) return RomMetadataParserError.CnmtNcaReadError;
 
         // Open NCA FileSystem
@@ -278,7 +277,7 @@ public class RomMetadataParser
 
         // Read NCA stream
         _controlNcaFile = new UniqueRef<IFile>();
-        var result = _rootFs.OpenFile(ref _controlNcaFile.Ref, (U8Span)controlNcaEntry.FullPath, OpenMode.All);
+        var result = _rootFs!.OpenFile(ref _controlNcaFile.Ref, (U8Span)controlNcaEntry.FullPath, OpenMode.All);
         if (result.IsFailure()) return RomMetadataParserError.ControlNcaReadError;
 
         // Open NCA FileSystem
@@ -300,7 +299,7 @@ public class RomMetadataParser
 
         // Search for NACP file
         using var nacpFile = new UniqueRef<IFile>();
-        var result = _controlNcaFs.OpenFile(ref nacpFile.Ref, (U8Span)"/control.nacp", OpenMode.Read);
+        var result = _controlNcaFs!.OpenFile(ref nacpFile.Ref, (U8Span)"/control.nacp", OpenMode.Read);
         if (!result.IsSuccess()) return RomMetadataParserError.NacpNotFound;
 
         // Load NACP and transform it into object
