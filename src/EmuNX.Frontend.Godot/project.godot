@@ -18,6 +18,7 @@ config/icon="res://Assets/icon.svg"
 [dotnet]
 
 project/assembly_name="EmuNX.Frontend.Godot"
+project/solution_directory="../../"
 
 [rendering]
 

@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${env:GODOT4NET}",
+            "program": "${env:EMUNX_GODOT4NET}",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,

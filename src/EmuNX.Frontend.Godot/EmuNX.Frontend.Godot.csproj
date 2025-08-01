@@ -6,7 +6,8 @@
     </PropertyGroup>
  
     <ItemGroup>
-        <ProjectReference Include="$(SolutionDir)/src/EmuNX.Core.RomMetadata/EmuNX.Core.RomMetadata.csproj" ExcludeFromSingleFile="true"/>
+        <ProjectReference Include="..\EmuNX.Core.Common\EmuNX.Core.Common.csproj" />
+        <ProjectReference Include="..\EmuNX.Core.RomMetadata\EmuNX.Core.RomMetadata.csproj" />
     </ItemGroup>
 
     <ItemGroup>
