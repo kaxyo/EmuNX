@@ -1,4 +1,4 @@
-namespace EmuNX.Lib.MetadataParserNX.Parser;
+namespace EmuNX.Core.RomMetadata.Parser;
 
 public enum RomMetadataParserError
 {
