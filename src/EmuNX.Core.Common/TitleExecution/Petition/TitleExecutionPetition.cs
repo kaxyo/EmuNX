@@ -1,5 +1,9 @@
-namespace EmuNX.Core.Common;
+using EmulatorFamily = EmuNX.Core.Common.TitleExecution.Petition.Types.TitleExecutionPetitionEmulatorFamily;
+using UserPrompt = EmuNX.Core.Common.TitleExecution.Petition.Types.TitleExecutionPetitionUserPrompt;
 
+namespace EmuNX.Core.Common.TitleExecution.Petition;
+
+/// <summary>
 /// <para>
 /// Defines a possibly <b>ambiguous petition</b> on how a <b>title should be executed</b>.
 /// </para>
@@ -18,7 +22,10 @@ namespace EmuNX.Core.Common;
 /// <para>
 /// In short, this is the middle step to generate the final <see cref="TitleExecutionCommand"/>.
 /// </para>
+/// </summary>
 public class TitleExecutionPetition
 {
-    
+    public EmulatorFamily? emulatorFamily;
+    public string? emulatorRunner;
+    public UserPrompt? userPrompt;
 }
