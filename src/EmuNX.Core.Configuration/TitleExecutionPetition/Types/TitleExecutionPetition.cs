@@ -1,7 +1,7 @@
-using EmulatorFamily = EmuNX.Core.Common.TitleExecution.Petition.Types.TitleExecutionPetitionEmulatorFamily;
-using UserPrompt = EmuNX.Core.Common.TitleExecution.Petition.Types.TitleExecutionPetitionUserPrompt;
+using EmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.Inner.TitleExecutionPetitionEmulatorFamily;
+using UserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.Inner.TitleExecutionPetitionUserPrompt;
 
-namespace EmuNX.Core.Common.TitleExecution.Petition;
+namespace EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
 /// <summary>
 /// <para>

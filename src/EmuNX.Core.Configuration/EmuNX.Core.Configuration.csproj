@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\EmuNX.Core.Common\EmuNX.Core.Common.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.EmuNX.Core.Common", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmuNX.Core.Configuration", "src\EmuNX.Core.Configuration\EmuNX.Core.Configuration.csproj", "{D3383AC6-6133-4075-AA68-AE10E0B0EE9B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.EmuNX.Core.Configuration", "tests\Tests.EmuNX.Core.Configuration\Tests.EmuNX.Core.Configuration.csproj", "{EAC9C20E-87F9-4766-A1EE-9C38975973DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,10 @@ Global
 		{D3383AC6-6133-4075-AA68-AE10E0B0EE9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3383AC6-6133-4075-AA68-AE10E0B0EE9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3383AC6-6133-4075-AA68-AE10E0B0EE9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAC9C20E-87F9-4766-A1EE-9C38975973DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAC9C20E-87F9-4766-A1EE-9C38975973DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAC9C20E-87F9-4766-A1EE-9C38975973DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAC9C20E-87F9-4766-A1EE-9C38975973DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8DE4E395-E0C7-4E03-BB57-0132B848484A} = {25D6BEBA-C750-4D08-867E-73D050071EBA}
