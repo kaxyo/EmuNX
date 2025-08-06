@@ -5,6 +5,8 @@ namespace EmuNX.Core.Configuration;
 /// </summary>
 public struct Version(uint major, uint minor)
 {
+    public Version() : this(0, 0) {}
+
     /// <summary>
     /// Represents the changes of structure or content.
     /// </summary>
