@@ -28,7 +28,7 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
         if (LoadMetaVersion(root) is { } error)
             return error;
 
-        if (!VersionTarget.IsCompatibleWith(VersionTarget))
+        if (!VersionTarget.IsCompatibleWith(VersionCurrent))
             return TitleExecutionPetitionConfigError.MetaVersionNotCompatible;
 
         return null;
