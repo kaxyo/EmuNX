@@ -32,7 +32,7 @@ public interface ITitleExecutionPetitionConfig
     /// <seealso cref="TepEmulatorFamilies"/>
     /// <seealso cref="TepTitles"/>
     /// <returns>If the <b>loading</b> succeeds <c>null</c>, if it fails <see cref="TitleExecutionPetitionConfigError"/>.</returns>
-    TitleExecutionPetitionConfigError? Load();
+    Task<TitleExecutionPetitionConfigError?> Load();
     /// <summary>
     /// Saves the current state of every <see cref="TitleExecutionPetition"/> loaded into a <b>file/source</b>.
     /// </summary>
@@ -40,7 +40,7 @@ public interface ITitleExecutionPetitionConfig
     /// <seealso cref="TepEmulatorFamilies"/>
     /// <seealso cref="TepTitles"/>
     /// <returns>If the <b>saving</b> succeeds <c>null</c>, if it fails <see cref="TitleExecutionPetitionConfigError"/>.</returns>
-    TitleExecutionPetitionConfigError? Save();
+    Task<TitleExecutionPetitionConfigError?> Save();
     #endregion
 
     #region Current state
