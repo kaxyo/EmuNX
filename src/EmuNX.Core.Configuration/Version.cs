@@ -18,6 +18,6 @@ public struct Version(uint major, uint minor)
 
     public bool IsCompatibleWith(Version other)
     {
-        return this.Major == other.Major && this.Minor <= other.Minor;
+        return this.Major == other.Major && this.Minor >= other.Minor;
     }
 }
