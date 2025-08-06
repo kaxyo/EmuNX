@@ -1,7 +1,7 @@
-using EmuNX.Core.Configuration.TitleExecutionPetition.Types.Inner;
-using A = EmuNX.Core.Configuration.TitleExecutionPetition.Types;
+using EmuNX.Core.Configuration.TitleExecutionPetition;
+using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
-namespace Tests.EmuNX.Core.Configuration.TitleExecutionPetition.Types;
+namespace Tests.EmuNX.Core.Configuration;
 
 public class TitleExecutionPetitionTests
 {
@@ -9,7 +9,7 @@ public class TitleExecutionPetitionTests
     public void Clone_CreatesExactCopy()
     {
         // Arrange
-        var original = new A.TitleExecutionPetition(
+        var original = new TitleExecutionPetition(
             TitleExecutionPetitionEmulatorFamily.Yuzu,
             "yuzu-stable",
             TitleExecutionPetitionUserPrompt.Ask
@@ -29,13 +29,13 @@ public class TitleExecutionPetitionTests
     public void Patch_OverridesOnlyNonNullFields()
     {
         // Arrange
-        var basePetition = new A.TitleExecutionPetition(
+        var basePetition = new TitleExecutionPetition(
             TitleExecutionPetitionEmulatorFamily.Ryujinx,
             "ryubing-1.3.2",
             TitleExecutionPetitionUserPrompt.Ask
         );
 
-        var patch = new A.TitleExecutionPetition(
+        var patch = new TitleExecutionPetition(
             null,
             null,
             TitleExecutionPetitionUserPrompt.None
@@ -54,13 +54,13 @@ public class TitleExecutionPetitionTests
     public void Patch_DoesNothingIfAllFieldsAreNull()
     {
         // Arrange
-        var original = new A.TitleExecutionPetition(
+        var original = new TitleExecutionPetition(
             TitleExecutionPetitionEmulatorFamily.Yuzu,
             "yuzu-ea-latest",
             TitleExecutionPetitionUserPrompt.Ask
         );
 
-        var patch = new A.TitleExecutionPetition(null, null, null);
+        var patch = new TitleExecutionPetition(null, null, null);
 
         // Act
         var result = original.Clone().Patch(patch);

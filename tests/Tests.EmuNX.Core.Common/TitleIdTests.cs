@@ -1,9 +1,7 @@
 using EmuNX.Core.Common.Types;
 
-namespace Tests.EmuNX.Core.Common.Types;
+namespace Tests.EmuNX.Core.Common;
 
-using Xunit;
-using EmuNX.Core.Common.Types;
 public class TitleIdTests
 {
     [Theory]
