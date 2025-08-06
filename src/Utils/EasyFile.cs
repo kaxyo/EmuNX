@@ -8,27 +8,54 @@ public class EasyFile
     /// <summary>
     /// Reads the entire content of a text file asynchronously.
     /// </summary>
+    /// <returns>String if it read, null if the file couldn't be read.</returns>
     public static async Task<string?> ReadText(string filePath)
     {
         if (!File.Exists(filePath))
             return null;
 
-        return await File.ReadAllTextAsync(filePath);
+        try
+        {
+            return await File.ReadAllTextAsync(filePath);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     /// <summary>
     /// Writes the given text to a file asynchronously, overwriting if it already exists.
     /// </summary>
-    public static async Task WriteText(string filePath, string content)
+    /// <returns>True if succeeded, else false.</returns>
+    public static async Task<bool> WriteText(string filePath, string content)
     {
-        await File.WriteAllTextAsync(filePath, content);
+        try
+        {
+            await File.WriteAllTextAsync(filePath, content);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>
     /// Appends text to the end of the specified file asynchronously.
+    /// Returns true if successful, false if an error occurs.
     /// </summary>
-    public static async Task AppendText(string filePath, string content)
+    /// <returns>True if succeeded, else false.</returns>
+    public static async Task<bool> AppendText(string filePath, string content)
     {
-        await File.AppendAllTextAsync(filePath, content);
+        try
+        {
+            await File.AppendAllTextAsync(filePath, content);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
