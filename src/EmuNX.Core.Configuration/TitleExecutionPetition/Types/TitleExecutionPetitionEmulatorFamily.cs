@@ -23,4 +23,26 @@ public static class TitleExecutionPetitionEmulatorFamilyExtensions
             _ => null
         };
     }
+
+    public static string ToString(this TitleExecutionPetitionEmulatorFamily value)
+    {
+        return value switch
+        {
+            TitleExecutionPetitionEmulatorFamily.Ask => "ask",
+            TitleExecutionPetitionEmulatorFamily.Yuzu => "yuzu",
+            TitleExecutionPetitionEmulatorFamily.Ryujinx => "ryujinx",
+            _ => "ask"
+        };
+    }
+    
+    public static TitleExecutionPetitionEmulatorFamily? FromString(string family)
+    {
+        return family.ToLower() switch
+        {
+            "ask" => TitleExecutionPetitionEmulatorFamily.Ask,
+            "yuzu" => TitleExecutionPetitionEmulatorFamily.Ask,
+            "ryujinx" => TitleExecutionPetitionEmulatorFamily.Ask,
+            _ => null
+        };
+    }
 }
