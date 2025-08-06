@@ -1,6 +1,6 @@
 using EmuNX.Core.Common.Types;
 
-namespace Tests.EmuNX.Core.Configuration.Core.Common;
+namespace Tests.EmuNX.Core.Common;
 
 public class TitleIdTests
 {

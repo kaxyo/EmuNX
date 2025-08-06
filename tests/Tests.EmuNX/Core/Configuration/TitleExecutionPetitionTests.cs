@@ -1,7 +1,7 @@
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
-namespace Tests.EmuNX.Core.Configuration.Core.Configuration;
+namespace Tests.EmuNX.Core.Configuration;
 
 public class TitleExecutionPetitionTests
 {
