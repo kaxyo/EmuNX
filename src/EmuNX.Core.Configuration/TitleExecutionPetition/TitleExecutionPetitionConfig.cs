@@ -1,4 +1,5 @@
 using EmuNX.Core.Common.Types;
+using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 
@@ -22,7 +23,7 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 /// </list>
 /// </para>
 /// </summary>
-public interface ITitleExecutionPetitionConfig
+public abstract class TitleExecutionPetitionConfig
 {
     #region Storage
     /// <summary>
@@ -32,7 +33,8 @@ public interface ITitleExecutionPetitionConfig
     /// <seealso cref="TepEmulatorFamilies"/>
     /// <seealso cref="TepTitles"/>
     /// <returns>If the <b>loading</b> succeeds <c>null</c>, if it fails <see cref="TitleExecutionPetitionConfigError"/>.</returns>
-    Task<TitleExecutionPetitionConfigError?> Load();
+    public abstract Task<TitleExecutionPetitionConfigError?> Load();
+    
     /// <summary>
     /// Saves the current state of every <see cref="TitleExecutionPetition"/> loaded into a <b>file/source</b>.
     /// </summary>
@@ -40,13 +42,18 @@ public interface ITitleExecutionPetitionConfig
     /// <seealso cref="TepEmulatorFamilies"/>
     /// <seealso cref="TepTitles"/>
     /// <returns>If the <b>saving</b> succeeds <c>null</c>, if it fails <see cref="TitleExecutionPetitionConfigError"/>.</returns>
-    Task<TitleExecutionPetitionConfigError?> Save();
+    public abstract Task<TitleExecutionPetitionConfigError?> Save();
     #endregion
 
     #region Current state
-    TitleExecutionPetition TepGlobal { get; set; }
-    Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies { get; }
-    Dictionary<TitleId, TitleExecutionPetition> TepTitles { get; }
+
+    public TitleExecutionPetition TepGlobal = new TitleExecutionPetition(
+        TitleExecutionPetitionEmulatorFamily.Ask,
+        "default",
+        TitleExecutionPetitionUserPrompt.Ask
+    );
+    public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies { get; } = new();
+    public Dictionary<TitleId, TitleExecutionPetition> TepTitles { get; } = new();
     #endregion
 
     #region Utilities
@@ -56,7 +63,16 @@ public interface ITitleExecutionPetitionConfig
     /// </summary>
     /// <param name="emulatorFamily">The emulator family to retrieve its patch.</param>
     /// <returns>The resulting <see cref="TitleExecutionPetition"/> after applying relevant patches.</returns>
-    TitleExecutionPetition GetFullTepOfEmulatorFamily(EmulatorFamily emulatorFamily);
+    public TitleExecutionPetition GetFullTepOfEmulatorFamily(EmulatorFamily emulatorFamily)
+    {
+        var tepFinal = TepGlobal.Clone();
+
+        if (TepEmulatorFamilies.TryGetValue(emulatorFamily, out var tepEmulatorFamily))
+            tepFinal.Patch(tepEmulatorFamily);
+
+        return tepFinal;
+    }
+    
     /// <summary>
     /// Gets the merged <see cref="TitleExecutionPetition"/> for the given <paramref name="titleId"/>,
     /// applying overrides from <see cref="TepGlobal"/> and <see cref="TepEmulatorFamilies"/> based on the properties of
@@ -64,6 +80,9 @@ public interface ITitleExecutionPetitionConfig
     /// </summary>
     /// <param name="titleId">The title ID to retrieve its patch.</param>
     /// <returns>The resulting <see cref="TitleExecutionPetition"/> after applying all relevant patches.</returns>
-    TitleExecutionPetition GetFullTepOfTitleId(TitleId titleId);
+    public TitleExecutionPetition GetFullTepOfTitleId(TitleId titleId)
+    {
+        throw new NotImplementedException();
+    }
     #endregion
 }
