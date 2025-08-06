@@ -1,7 +1,8 @@
-using EmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.Inner.TitleExecutionPetitionEmulatorFamily;
-using UserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.Inner.TitleExecutionPetitionUserPrompt;
+using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
+using EmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
+using UserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPrompt;
 
-namespace EmuNX.Core.Configuration.TitleExecutionPetition.Types;
+namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 
 /// <summary>
 /// <para>
@@ -28,11 +29,11 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 /// This class supports <b>patching</b> operations between two <see cref="TitleExecutionPetition"/>.
 /// See <see cref="Patch"/> method for more information.
 /// </remarks>
-public class TitleExecutionPetition(EmulatorFamily? emulatorFamily, string? emulatorRunner, UserPrompt? userPrompt)
+public class TitleExecutionPetition(TitleExecutionPetitionEmulatorFamily? emulatorFamily, string? emulatorRunner, TitleExecutionPetitionUserPrompt? userPrompt)
 {
-    public EmulatorFamily? emulatorFamily = emulatorFamily;
+    public TitleExecutionPetitionEmulatorFamily? emulatorFamily = emulatorFamily;
     public string? emulatorRunner = emulatorRunner;
-    public UserPrompt? userPrompt = userPrompt;
+    public TitleExecutionPetitionUserPrompt? userPrompt = userPrompt;
 
     /// <summary>
     /// Overrides values from <b>this</b> with the <b>non-null</b> values from <paramref name="other"/>.

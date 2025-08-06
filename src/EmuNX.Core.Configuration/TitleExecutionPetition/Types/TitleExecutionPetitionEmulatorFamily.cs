@@ -1,4 +1,4 @@
-namespace EmuNX.Core.Configuration.TitleExecutionPetition.Types.Inner;
+namespace EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
 public enum TitleExecutionPetitionEmulatorFamily
 {
