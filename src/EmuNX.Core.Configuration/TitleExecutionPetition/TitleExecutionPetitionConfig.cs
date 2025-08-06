@@ -25,6 +25,9 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 /// </summary>
 public abstract class TitleExecutionPetitionConfig
 {
+    public abstract Version VersionTarget { get; }
+    public Version VersionCurrent = new(0, 0);
+
     #region Storage
     /// <summary>
     /// Loads every <see cref="TitleExecutionPetition"/> stored in the <b>file/source</b>.
