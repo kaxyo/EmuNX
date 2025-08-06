@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\EmuNX.Core.Common\EmuNX.Core.Common.csproj" />
+        <ProjectReference Include="..\Utils\Utils.csproj" />
     </ItemGroup>
 
 </Project>
