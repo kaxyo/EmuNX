@@ -1,3 +1,5 @@
+using EmuNX.Core.Common.Types;
+
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
 public enum TitleExecutionPetitionEmulatorFamily
@@ -8,4 +10,17 @@ public enum TitleExecutionPetitionEmulatorFamily
     Yuzu,
     /// If the runner id is empty or wrong, the system will prompt <b>Ryujinx</b> runners.
     Ryujinx,
+}
+
+public static class TitleExecutionPetitionEmulatorFamilyExtensions
+{
+    public static EmulatorFamily? ToEmulatorFamily(this TitleExecutionPetitionEmulatorFamily tepEmulatorFamily)
+    {
+        return tepEmulatorFamily switch
+        {
+            TitleExecutionPetitionEmulatorFamily.Yuzu => EmulatorFamily.Yuzu,
+            TitleExecutionPetitionEmulatorFamily.Ryujinx => EmulatorFamily.Ryujinx,
+            _ => null
+        };
+    }
 }
