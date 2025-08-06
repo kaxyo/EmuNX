@@ -31,9 +31,9 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 /// </remarks>
 public class TitleExecutionPetition(TitleExecutionPetitionEmulatorFamily? emulatorFamily, string? emulatorRunner, TitleExecutionPetitionUserPrompt? userPrompt)
 {
-    public TitleExecutionPetitionEmulatorFamily? emulatorFamily = emulatorFamily;
-    public string? emulatorRunner = emulatorRunner;
-    public TitleExecutionPetitionUserPrompt? userPrompt = userPrompt;
+    public TitleExecutionPetitionEmulatorFamily? EmulatorFamily = emulatorFamily;
+    public string? EmulatorRunner = emulatorRunner;
+    public TitleExecutionPetitionUserPrompt? UserPrompt = userPrompt;
 
     /// <summary>
     /// Overrides values from <b>this</b> with the <b>non-null</b> values from <paramref name="other"/>.
@@ -65,15 +65,15 @@ public class TitleExecutionPetition(TitleExecutionPetitionEmulatorFamily? emulat
     /// <returns>This object but with the patch applied</returns>
     public TitleExecutionPetition Patch(TitleExecutionPetition other)
     {
-        this.emulatorFamily = other.emulatorFamily ?? this.emulatorFamily;
-        this.emulatorRunner = other.emulatorRunner ?? this.emulatorRunner;
-        this.userPrompt = other.userPrompt ?? this.userPrompt;
+        this.EmulatorFamily = other.EmulatorFamily ?? this.EmulatorFamily;
+        this.EmulatorRunner = other.EmulatorRunner ?? this.EmulatorRunner;
+        this.UserPrompt = other.UserPrompt ?? this.UserPrompt;
 
         return this;
     }
 
     public TitleExecutionPetition Clone()
     {
-        return new TitleExecutionPetition(this.emulatorFamily, this.emulatorRunner, this.userPrompt);
+        return new TitleExecutionPetition(this.EmulatorFamily, this.EmulatorRunner, this.UserPrompt);
     }
 }
