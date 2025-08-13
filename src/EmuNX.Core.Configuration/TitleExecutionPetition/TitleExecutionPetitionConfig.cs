@@ -72,7 +72,7 @@ public abstract class TitleExecutionPetitionConfig
     /// </remarks>
     public void RestartState()
     {
-        TepGlobal = TepDefaultGlobal.Clone();
+        TepGlobal = new TitleExecutionPetition();
 
         TepEmulatorFamilies = new Dictionary<EmulatorFamily, TitleExecutionPetition>()
         {
