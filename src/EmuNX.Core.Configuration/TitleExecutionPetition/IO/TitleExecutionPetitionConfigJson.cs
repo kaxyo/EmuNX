@@ -11,7 +11,7 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 
 /// <summary>
 /// Implements <see cref="TitleExecutionPetitionConfig"/> to manage the configuration inside a <b>JSON</b> file.
-/// To set the <b>file path</b>, please change 
+/// To change the <b>file path</b> after instantiation, please change <see cref="FilePath"/>.
 /// </summary>
 public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionPetitionConfig
 {
