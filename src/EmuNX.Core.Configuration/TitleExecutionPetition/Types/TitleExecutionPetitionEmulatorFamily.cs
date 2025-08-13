@@ -24,7 +24,8 @@ public static class TitleExecutionPetitionEmulatorFamilyExtensions
         };
     }
 
-    public static string ToString(this TitleExecutionPetitionEmulatorFamily value)
+    /// <returns>The enum as a string with <b>kebab-case</b>.</returns>
+    public static string ToKeyString(this TitleExecutionPetitionEmulatorFamily value)
     {
         return value switch
         {

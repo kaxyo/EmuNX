@@ -8,7 +8,8 @@ public enum EmulatorFamily
 
 public static class EmulatorFamilyExtensions
 {
-    public static string ToString(this EmulatorFamily value)
+    /// <returns>The enum as a string with <b>kebab-case</b>.</returns>
+    public static string ToKeyString(this EmulatorFamily value)
     {
         return value switch
         {
