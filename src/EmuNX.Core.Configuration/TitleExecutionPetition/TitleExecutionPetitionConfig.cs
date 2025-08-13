@@ -50,13 +50,38 @@ public abstract class TitleExecutionPetitionConfig
 
     #region Current state
 
-    public TitleExecutionPetition TepGlobal = new TitleExecutionPetition(
+    public TitleExecutionPetition TepGlobal = new();
+    public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies { get; private set; } = new();
+    public Dictionary<TitleId, TitleExecutionPetition> TepTitles { get; } = new();
+    #endregion
+    
+    #region Restart
+    public readonly TitleExecutionPetition TepDefaultGlobal = new (
         TitleExecutionPetitionEmulatorFamily.Ask,
         "default",
         TitleExecutionPetitionUserPrompt.Ask
     );
-    public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies { get; } = new();
-    public Dictionary<TitleId, TitleExecutionPetition> TepTitles { get; } = new();
+
+    /// <summary>
+    /// Restarts <see cref="TepGlobal"/>, <see cref="TepEmulatorFamilies"/> and <see cref="TepTitles"/> to their
+    /// default values.
+    /// </summary>
+    /// <remarks>
+    /// This is <b>not executed at instantiation</b>, meaning that unless you call <see cref="Load"/> or
+    /// <see cref="RestartState"/>, the state-values will not be correct/unexpected.
+    /// </remarks>
+    public void RestartState()
+    {
+        TepGlobal = TepDefaultGlobal.Clone();
+
+        TepEmulatorFamilies = new Dictionary<EmulatorFamily, TitleExecutionPetition>()
+        {
+            { EmulatorFamily.Yuzu, new TitleExecutionPetition() },
+            { EmulatorFamily.Ryujinx, new TitleExecutionPetition() }
+        };
+
+        TepTitles.Clear();
+    }
     #endregion
 
     #region Utilities

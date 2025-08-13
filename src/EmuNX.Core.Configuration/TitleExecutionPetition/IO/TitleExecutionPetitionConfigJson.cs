@@ -21,7 +21,7 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
 
     public override async Task<TitleExecutionPetitionConfigError?> Load()
     {
-        // TODO: Restart state. E.g. TepGlobal because we do TepGlobal.Patch(TepFromJson).
+        RestartState();
 
         // Read file
         var jsonString = await EasyFile.ReadText(FilePath);
