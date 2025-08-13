@@ -77,4 +77,22 @@ public class TitleExecutionPetition(EmulatorFamily? emulatorFamily, string? emul
     {
         return new TitleExecutionPetition(this.EmulatorFamily, this.EmulatorRunner, this.UserPrompt);
     }
+
+    protected bool Equals(TitleExecutionPetition other)
+    {
+        return EmulatorFamily == other.EmulatorFamily && EmulatorRunner == other.EmulatorRunner && UserPrompt == other.UserPrompt;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((TitleExecutionPetition)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        throw new NotImplementedException();
+    }
 }

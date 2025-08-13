@@ -1,5 +1,9 @@
+using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
+using TepEmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
+using TepUserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPrompt;
+using Version = EmuNX.Core.Configuration.Version;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
 
@@ -22,5 +26,38 @@ public class TitleExecutionPetitionConfigJsonTests
 
         // Assert
         Assert.Equal(expectedError, result);
+    }
+
+    [Fact]
+    public async Task Load_IsValid()
+    {
+        // Arrange
+        var config = new TitleExecutionPetitionConfigJson("data/configuration/title_execution.ok.json");
+
+        // Act
+        var result = await config.Load();
+
+        // Assert
+        Assert.Null(result);
+
+        Assert.Equal(config.TepGlobal, new TitleExecutionPetition(
+            TepEmulatorFamily.Yuzu,
+            null,
+            TepUserPrompt.Ask
+        ));
+
+        Assert.Equal(config.TepEmulatorFamilies[EmulatorFamily.Yuzu], new TitleExecutionPetition(
+            TepEmulatorFamily.Yuzu,
+            "eden-0.0.2",
+            TepUserPrompt.Ask
+        ));
+
+        Assert.Equal(config.TepEmulatorFamilies[EmulatorFamily.Ryujinx], new TitleExecutionPetition(
+            TepEmulatorFamily.Ryujinx,
+            "ryubing-1.3.2",
+            TepUserPrompt.None
+        ));
+        
+        // TODO: Titles
     }
 }
