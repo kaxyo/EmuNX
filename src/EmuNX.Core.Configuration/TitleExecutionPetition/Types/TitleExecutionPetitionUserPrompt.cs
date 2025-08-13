@@ -8,3 +8,26 @@ public enum TitleExecutionPetitionUserPrompt
     /// by the runner's settings.
     None,
 }
+
+public static class TitleExecutionPetitionUserPromptExtensions
+{
+    public static string ToString(this TitleExecutionPetitionUserPrompt value)
+    {
+        return value switch
+        {
+            TitleExecutionPetitionUserPrompt.Ask => "ask",
+            TitleExecutionPetitionUserPrompt.None => "none",
+            _ => "ask"
+        };
+    }
+    
+    public static TitleExecutionPetitionUserPrompt? FromString(string family)
+    {
+        return family.ToLower() switch
+        {
+            "ask" => TitleExecutionPetitionUserPrompt.Ask,
+            "none" => TitleExecutionPetitionUserPrompt.None,
+            _ => null
+        };
+    }
+}
