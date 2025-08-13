@@ -40,8 +40,8 @@ public static class TitleExecutionPetitionEmulatorFamilyExtensions
         return family.ToLower() switch
         {
             "ask" => TitleExecutionPetitionEmulatorFamily.Ask,
-            "yuzu" => TitleExecutionPetitionEmulatorFamily.Ask,
-            "ryujinx" => TitleExecutionPetitionEmulatorFamily.Ask,
+            "yuzu" => TitleExecutionPetitionEmulatorFamily.Yuzu,
+            "ryujinx" => TitleExecutionPetitionEmulatorFamily.Ryujinx,
             _ => null
         };
     }
