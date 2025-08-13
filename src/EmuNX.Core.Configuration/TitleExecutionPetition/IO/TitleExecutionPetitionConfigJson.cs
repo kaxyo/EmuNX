@@ -38,16 +38,15 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
 
     private TitleExecutionPetitionConfigError? LoadMetaVersion(JsonElement root)
     {
-        // Enter "meta" object
-        if (!root.TryGetProperty("meta", out var metaElement) || metaElement.ValueKind != JsonValueKind.Object)
-            return TitleExecutionPetitionConfigError.MetaVersionNotFound;
+        // We need to have "meta.version" and it must be an array
+        var versionArray = root
+            .GetObject("meta")?
+            .GetArray("version");
 
-        // "meta.version" must be an array
-        if (!metaElement.TryGetProperty("version", out var versionElement) || versionElement.ValueKind != JsonValueKind.Array)
+        if (versionArray is null)
             return TitleExecutionPetitionConfigError.MetaVersionNotFound;
 
         // Read each number from "meta.version"
-        var versionArray = versionElement.EnumerateArray().ToArray();
         if (versionArray.Length < 2 ||
             !versionArray[0].TryGetUInt32(out var major) ||
             !versionArray[1].TryGetUInt32(out var minor))
