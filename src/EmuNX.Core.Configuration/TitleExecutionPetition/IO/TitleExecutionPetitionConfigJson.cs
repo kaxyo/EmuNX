@@ -1,5 +1,10 @@
 using System.Text.Json;
+using EmuNX.Core.Common.Types;
 using Utils;
+using TepEmulatorFamilyExtensions = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamilyExtensions;
+using TepEmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
+using TepUserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPrompt;
+using TepUserPromptExtensions = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPromptExtensions;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 
@@ -16,6 +21,8 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
 
     public override async Task<TitleExecutionPetitionConfigError?> Load()
     {
+        // TODO: Restart state. E.g. TepGlobal because we do TepGlobal.Patch(TepFromJson).
+
         // Read file
         var jsonString = await EasyFile.ReadText(FilePath);
         if (jsonString == null) return TitleExecutionPetitionConfigError.FileReadError;
@@ -24,13 +31,26 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
         using var document = JsonDocument.Parse(jsonString);
         var root = document.RootElement;
         
-        // Validate Version
+        // meta: Validate Version
         if (LoadMetaVersion(root) is { } error)
             return error;
 
         if (!VersionTarget.IsCompatibleWith(VersionCurrent))
             return TitleExecutionPetitionConfigError.MetaVersionNotCompatible;
 
+        // data.emulators: Load JsonElement
+        if (root.GetObject("emulators") is { } emulatorsElement)
+        {
+            // data.emulators.global
+            if (emulatorsElement.GetObject("global") is { } globalElement)
+                TepGlobal.Patch(
+                    LoadTitleExecutionPetition(globalElement)
+                );
+
+            // data.emulators.families
+            // TODO:
+        }
+        
         return null;
     }
 
