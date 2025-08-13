@@ -35,6 +35,8 @@ public class TitleExecutionPetition(TitleExecutionPetitionEmulatorFamily? emulat
     public string? EmulatorRunner = emulatorRunner;
     public TitleExecutionPetitionUserPrompt? UserPrompt = userPrompt;
 
+    public TitleExecutionPetition() : this(null, null, null) {}
+
     /// <summary>
     /// Overrides values from <b>this</b> with the <b>non-null</b> values from <paramref name="other"/>.
     /// </summary>
