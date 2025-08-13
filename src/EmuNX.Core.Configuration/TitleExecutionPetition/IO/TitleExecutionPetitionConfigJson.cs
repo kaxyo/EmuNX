@@ -56,6 +56,29 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
         VersionCurrent = new Version(major, minor);
         return null;
     }
+
+    private TitleExecutionPetition LoadTitleExecutionPetition(JsonElement root)
+    {
+        var tep = new TitleExecutionPetition();
+
+        var emulatorElement = root.GetObject("emulator");
+        var userElement = root.GetObject("user");
+
+        // emulation.family = EmulatorFamily ?? .Ask
+        if (emulatorElement?.GetString("family") is { } family)
+            tep.EmulatorFamily = TepEmulatorFamilyExtensions.FromString(family) ?? TepEmulatorFamily.Ask;
+
+        // emulation.runner = string
+        if (emulatorElement?.GetString("runner") is { } runner)
+            tep.EmulatorRunner = runner;
+
+        // user.prompt = UserPrompt ?? .Ask
+        if (userElement?.GetString("prompt") is { } prompt)
+            tep.UserPrompt = TepUserPromptExtensions.FromString(prompt) ?? TepUserPrompt.Ask;
+
+        return tep;
+    }
+    
     #endregion
 
     public override async Task<TitleExecutionPetitionConfigError?> Save()
