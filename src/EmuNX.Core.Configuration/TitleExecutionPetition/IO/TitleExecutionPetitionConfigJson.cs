@@ -40,7 +40,7 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
             return TitleExecutionPetitionConfigError.MetaVersionNotCompatible;
 
         // data.emulators: Load JsonElement
-        if (root.GetObject("emulators") is { } emulatorsElement)
+        if (root.GetObject("data")?.GetObject("emulators") is { } emulatorsElement)
         {
             // data.emulators.global
             if (emulatorsElement.GetObject("global") is { } globalElement)
