@@ -24,6 +24,16 @@ public static class TitleExecutionPetitionEmulatorFamilyExtensions
         };
     }
 
+    public static TitleExecutionPetitionEmulatorFamily ToTitleExecutionPetitionEmulatorFamily(this EmulatorFamily emulatorFamily)
+    {
+        return emulatorFamily switch
+        {
+            EmulatorFamily.Yuzu => TitleExecutionPetitionEmulatorFamily.Yuzu,
+            EmulatorFamily.Ryujinx => TitleExecutionPetitionEmulatorFamily.Ryujinx,
+            _ => TitleExecutionPetitionEmulatorFamily.Yuzu
+        };
+    }
+
     /// <returns>The enum as a string with <b>kebab-case</b>.</returns>
     public static string ToKeyString(this TitleExecutionPetitionEmulatorFamily value)
     {

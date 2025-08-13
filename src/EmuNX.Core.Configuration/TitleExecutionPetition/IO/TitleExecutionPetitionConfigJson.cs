@@ -1,5 +1,6 @@
 using System.Text.Json;
 using EmuNX.Core.Common.Types;
+using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 using Utils;
 using TepEmulatorFamilyExtensions = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamilyExtensions;
 using TepEmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
@@ -48,7 +49,11 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
                 );
 
             // data.emulators.families
-            // TODO:
+            if (emulatorsElement.GetObject("families") is { } familiesElement)
+            {
+                LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Yuzu);
+                LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Ryujinx);
+            }
         }
         
         return null;
@@ -98,7 +103,17 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
 
         return tep;
     }
-    
+
+    private void LoadTepFromEmulatorsFamily(JsonElement root, EmulatorFamily family)
+    {
+        // data.emulators.families.<family>
+        if (root.GetObject(family.ToKeyString()) is { } familyElement)
+        {
+            var tep = LoadTitleExecutionPetition(familyElement);
+            tep.EmulatorFamily = family.ToTitleExecutionPetitionEmulatorFamily();
+            TepEmulatorFamilies[family] = tep;
+        }
+    }
     #endregion
 
     public override async Task<TitleExecutionPetitionConfigError?> Save()
