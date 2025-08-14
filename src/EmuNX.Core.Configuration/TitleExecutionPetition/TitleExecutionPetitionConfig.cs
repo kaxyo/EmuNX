@@ -49,19 +49,17 @@ public abstract class TitleExecutionPetitionConfig
     #endregion
 
     #region Current state
-
+    public readonly TitleExecutionPetition TepBase = new (
+        TitleExecutionPetitionEmulatorFamily.Ask,
+        "default",
+        TitleExecutionPetitionUserPrompt.Ask
+    );
     public TitleExecutionPetition TepGlobal = new();
     public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies { get; private set; } = new();
     public Dictionary<TitleId, TitleExecutionPetition> TepTitles { get; } = new();
     #endregion
     
     #region Restart
-    public readonly TitleExecutionPetition TepDefaultGlobal = new (
-        TitleExecutionPetitionEmulatorFamily.Ask,
-        "default",
-        TitleExecutionPetitionUserPrompt.Ask
-    );
-
     /// <summary>
     /// Restarts <see cref="TepGlobal"/>, <see cref="TepEmulatorFamilies"/> and <see cref="TepTitles"/> to their
     /// default values.
