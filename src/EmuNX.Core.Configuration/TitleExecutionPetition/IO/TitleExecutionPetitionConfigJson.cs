@@ -40,41 +40,47 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
         if (!VersionTarget.IsCompatibleWith(VersionCurrent))
             return TitleExecutionPetitionConfigError.MetaVersionNotCompatible;
 
-        // data.emulators: Load JsonElement
-        if (root.GetObject("data")?.GetObject("emulators") is { } emulatorsElement)
+        // data: Load JsonElement
+        if (root.GetObject("data") is not { } dataElement)
+            return null;
+
+        // data.emulators
+        if (dataElement.GetObject("emulators") is not { } emulatorsElement)
+            return null;
+
+        // data.emulators.global
+        if (emulatorsElement.GetObject("global") is { } globalElement)
+            TepGlobal.Patch(
+                LoadTitleExecutionPetition(globalElement)
+            );
+
+        // data.emulators.families
+        if (emulatorsElement.GetObject("families") is { } familiesElement)
         {
-            // data.emulators.global
-            if (emulatorsElement.GetObject("global") is { } globalElement)
-                TepGlobal.Patch(
-                    LoadTitleExecutionPetition(globalElement)
-                );
-
-            // data.emulators.families
-            if (emulatorsElement.GetObject("families") is { } familiesElement)
-            {
-                LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Yuzu);
-                LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Ryujinx);
-            }
-            
-            // data.titles
-            if (root.GetObject("data")?.GetObject("titles")?.EnumerateObject() is {} titleElements)
-                foreach (var titleElement in titleElements)
-                {
-                    TitleId titleId;
-
-                    try
-                    {
-                        titleId = new TitleId(titleElement.Name);
-                    }
-                    catch (Exception e)
-                    {
-                        continue;
-                    }
-                    
-                    TepTitles[titleId] = LoadTitleExecutionPetition(titleElement.Value);
-                }
+            LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Yuzu);
+            LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Ryujinx);
         }
-        
+
+        // data.titles
+        if (dataElement.GetObject("titles")?.EnumerateObject() is not { } titleElements)
+            return null;
+
+        foreach (var titleElement in titleElements)
+        {
+            TitleId titleId;
+
+            try
+            {
+                titleId = new TitleId(titleElement.Name);
+            }
+            catch (Exception e)
+            {
+                continue;
+            }
+                    
+            TepTitles[titleId] = LoadTitleExecutionPetition(titleElement.Value);
+        }
+
         return null;
     }
 
