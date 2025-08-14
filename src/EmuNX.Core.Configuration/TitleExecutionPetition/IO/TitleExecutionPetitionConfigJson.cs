@@ -62,24 +62,8 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
         }
 
         // data.titles
-        if (dataElement.GetObject("titles")?.EnumerateObject() is not { } titleElements)
-            return null;
-
-        foreach (var titleElement in titleElements)
-        {
-            TitleId titleId;
-
-            try
-            {
-                titleId = new TitleId(titleElement.Name);
-            }
-            catch (Exception e)
-            {
-                continue;
-            }
-                    
-            TepTitles[titleId] = LoadTitleExecutionPetition(titleElement.Value);
-        }
+        if (dataElement.GetObject("titles") is { } titleElements)
+            LoadTepFromTitles(titleElements);
 
         return null;
     }
@@ -137,6 +121,25 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
             var tep = LoadTitleExecutionPetition(familyElement);
             tep.EmulatorFamily = family.ToTitleExecutionPetitionEmulatorFamily();
             TepEmulatorFamilies[family] = tep;
+        }
+    }
+
+    private void LoadTepFromTitles(JsonElement root)
+    {
+        foreach (var titleElement in root.EnumerateObject())
+        {
+            TitleId titleId;
+
+            try
+            {
+                titleId = new TitleId(titleElement.Name);
+            }
+            catch (Exception e)
+            {
+                continue;
+            }
+
+            TepTitles[titleId] = LoadTitleExecutionPetition(titleElement.Value);
         }
     }
     #endregion
