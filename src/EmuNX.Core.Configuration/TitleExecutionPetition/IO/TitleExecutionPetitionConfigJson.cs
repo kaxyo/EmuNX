@@ -6,6 +6,7 @@ using TepEmulatorFamilyExtensions = EmuNX.Core.Configuration.TitleExecutionPetit
 using TepEmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
 using TepUserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPrompt;
 using TepUserPromptExtensions = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPromptExtensions;
+using System.Linq;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 
@@ -54,6 +55,24 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
                 LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Yuzu);
                 LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Ryujinx);
             }
+            
+            // data.titles
+            if (root.GetObject("data")?.GetObject("titles")?.EnumerateObject() is {} titleElements)
+                foreach (var titleElement in titleElements)
+                {
+                    TitleId titleId;
+
+                    try
+                    {
+                        titleId = new TitleId(titleElement.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        continue;
+                    }
+                    
+                    TepTitles[titleId] = LoadTitleExecutionPetition(titleElement.Value);
+                }
         }
         
         return null;

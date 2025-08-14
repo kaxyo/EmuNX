@@ -37,15 +37,17 @@ public class TitleExecutionPetitionConfigJsonTests
         // Act
         var result = await config.Load();
 
-        // Assert
+        // Assert: Errors
         Assert.Null(result);
 
+        // Assert: Emulators.Global
         Assert.Equal(config.TepGlobal, new TitleExecutionPetition(
             TepEmulatorFamily.Yuzu,
             null,
             TepUserPrompt.Ask
         ));
 
+        // Assert: Emulators.Families
         Assert.Equal(config.TepEmulatorFamilies[EmulatorFamily.Yuzu], new TitleExecutionPetition(
             TepEmulatorFamily.Yuzu,
             "eden-0.0.2",
@@ -58,6 +60,17 @@ public class TitleExecutionPetitionConfigJsonTests
             TepUserPrompt.None
         ));
         
-        // TODO: Titles
+        // Assert: Titles
+        Assert.Equal(config.TepTitles[new TitleId(0x0100F2C0115B6000)], new TitleExecutionPetition(
+            null,
+            null,
+            TepUserPrompt.None
+        ));
+
+        Assert.Equal(config.TepTitles[new TitleId(0x010093C01F256000)], new TitleExecutionPetition(
+            TepEmulatorFamily.Ryujinx,
+            null,
+            null
+        ));
     }
 }
