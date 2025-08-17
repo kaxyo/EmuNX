@@ -46,7 +46,7 @@ public partial class HelloWorld : Control
         Log("[outline_color=#ffffff60][outline_size=6][rainbow freq=0.5 sat=0.8 val=0.8 speed=0.5][wave]Hello from EmuNX :)[/wave][/rainbow][/outline_size][/outline_color]");
 
         // Load files used in testing
-        string[] paths = LoadFilePaths(ProjectSettings.GlobalizePath("res://.godot/locations.txt"));
+        string[]? paths = LoadFilePaths(ProjectSettings.GlobalizePath("res://.godot/locations.txt"));
         if (paths == null)
         {
             Log("Cannot continue without valid paths");
@@ -65,7 +65,7 @@ public partial class HelloWorld : Control
             if (!success) return;
 
             Log("Opening image");
-            if (!LoadStreamToTextureRect(Rom.Icon, textureRect))
+            if (!LoadBufferToTextureRect(Rom.Icon))
             {
                 Log("Couldn't open");
             }
@@ -98,19 +98,14 @@ public partial class HelloWorld : Control
         return true;
     }
 
-    public bool LoadStreamToTextureRect(Stream stream, TextureRect textureRect)
+    private bool LoadBufferToTextureRect(byte[]? buffer)
     {
-        // Convert bytes from stream to array
-        byte[] buffer;
-        using (MemoryStream ms = new MemoryStream())
-        {
-            stream.CopyTo(ms);
-            buffer = ms.ToArray();
-        }
+        if (buffer is null)
+            return false;
 
         // Load image
-        Image image = new Image();
-        Error error = image.LoadJpgFromBuffer(buffer);
+        var image = new Image();
+        var error = image.LoadJpgFromBuffer(buffer);
         if (error != Error.Ok) return false;
 
         // Update TextureRect
@@ -129,7 +124,7 @@ public partial class HelloWorld : Control
     /// </summary>
     /// <param name="locationsPath">The path to the file to read</param>
     /// <returns>An array with the three paths or null if there is some error</returns>
-    public string[] LoadFilePaths(string locationsPath)
+    public string[]? LoadFilePaths(string locationsPath)
     {
         Log($"Loading filePaths from: {locationsPath}");
 

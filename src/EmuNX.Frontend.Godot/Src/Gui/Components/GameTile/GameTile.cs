@@ -6,8 +6,8 @@ namespace EmuNX.Frontend.Godot.Gui.Components.GameTile;
 
 public partial class GameTile : AspectRatioContainer
 {
-    private RomMetadata _metadata;
-    private TextureRect _nodeIcon;
+    private RomMetadata? _metadata;
+    private TextureRect? _nodeIcon;
 
     public override void _Ready()
     {
@@ -26,23 +26,19 @@ public partial class GameTile : AspectRatioContainer
     /// <returns>True if the Icon was loaded</returns>
     public bool LoadIcon()
     {
-        // Validate icon stream from Data
-        if (_metadata?.Icon is not { CanRead: true })
-            return true;
+        // Abort if we cannot load an icon
+        if (_metadata?.Icon is null || _nodeIcon is null)
+            return false;
 
+        // Start loading
         try
         {
-            // Convert bytes from stream to array
-            using var ms = new MemoryStream();
-            _metadata.Icon.CopyTo(ms);
-            byte[] buffer = ms.ToArray();
-
-            // Load stream as JPG image
+            // Load buffer as JPG image
             var image = new Image();
-            if (image.LoadJpgFromBuffer(buffer) != Error.Ok)
+            if (image.LoadJpgFromBuffer(_metadata.Icon) != Error.Ok)
                 return false;
 
-            // Change the displayed Icon
+            // Change the displayed Icon 
             _nodeIcon.Texture = ImageTexture.CreateFromImage(image);
             return true;
         }

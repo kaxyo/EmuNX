@@ -343,7 +343,7 @@ public class RomMetadataParser
         return RomMetadata.Name;
     }
     
-    public Stream? ReadIcon()
+    public byte[]? ReadIcon()
     {
         // Avoid null pointer
         if (_controlNcaFs == null)
@@ -357,7 +357,17 @@ public class RomMetadataParser
         var result = _controlNcaFs.OpenFile(ref iconFile.Ref, (U8Span)ConfigLanguageIcon.GetIconPath(), OpenMode.Read);
 
         // Copy Icon stream
-        RomMetadata.Icon = result.IsSuccess() ? iconFile.Get.AsStream() : null;
+        if (result.IsFailure())
+        {
+            RomMetadata.Icon = null;
+        }
+        else
+        {
+            using var ms = new MemoryStream();
+            iconFile.Get.AsStream().CopyTo(ms);
+            RomMetadata.Icon = ms.ToArray();
+        }
+
         return RomMetadata.Icon;
     }
     
