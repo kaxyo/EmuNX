@@ -1,9 +1,10 @@
 namespace EmuNX.Core.Common.Types;
 
 /// <summary>
-/// Stores a ROM title identifier. Provides utility  methods. 
+/// Stores a ROM title identifier like 01006B601380E000.
+/// Provides utility methods for both representation and instantiation.
 /// </summary>
-public class TitleId
+public readonly struct TitleId : IEquatable<TitleId>
 {
     public readonly ulong Num;
 
@@ -12,23 +13,29 @@ public class TitleId
         Num = num;
     }
 
-    public TitleId(string hex)
+    public static bool TryParseHex(string hex, out TitleId titleId)
     {
+        // Validation
         var isLengthBad = string.IsNullOrEmpty(hex) || hex.Length != 16;
-        var wasNotParsed = !ulong.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out Num);
-        
-        if (isLengthBad || wasNotParsed)
-            throw new ArgumentException("Invalid hexadecimal format for TitleId.");
+        var failedToParse = !ulong.TryParse(hex.ToUpper(), System.Globalization.NumberStyles.HexNumber, null, out var number);
+
+        // Instantiation
+        var success = !(isLengthBad || failedToParse);
+        titleId = new TitleId(success ? number : 0);
+        return success;
     }
 
     public string Hex => Num.ToString("X16");
 
     public override string ToString() => Hex;
 
-    public override bool Equals(object? obj)
-    {
-        return obj is TitleId other && Num == other.Num;
-    }
+    public bool Equals(TitleId other) => Num == other.Num;
 
     public override int GetHashCode() => Num.GetHashCode();
+
+    public override bool Equals(object? obj) => obj is TitleId other && Equals(other);
+
+    public static bool operator ==(TitleId left, TitleId right) => left.Equals(right);
+
+    public static bool operator !=(TitleId left, TitleId right) => !(left == right);
 }

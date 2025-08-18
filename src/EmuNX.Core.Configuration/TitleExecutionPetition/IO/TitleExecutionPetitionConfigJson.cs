@@ -128,18 +128,8 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
     {
         foreach (var titleElement in root.EnumerateObject())
         {
-            TitleId titleId;
-
-            try
-            {
-                titleId = new TitleId(titleElement.Name);
-            }
-            catch (Exception e)
-            {
-                continue;
-            }
-
-            TepTitles[titleId] = LoadTitleExecutionPetition(titleElement.Value);
+            if (TitleId.TryParseHex(titleElement.Name, out var titleId))
+                TepTitles[titleId] = LoadTitleExecutionPetition(titleElement.Value);
         }
     }
     #endregion
