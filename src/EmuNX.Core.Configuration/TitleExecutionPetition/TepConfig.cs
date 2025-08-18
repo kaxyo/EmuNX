@@ -39,6 +39,15 @@ public class TepConfig
     #endregion
 
     #region Utilities
+    /// <returns>
+    /// The <see cref="TepGlobal"/> with the previous layers merged.
+    /// To learn about the merging order, read the documentation of <seealso cref="TepConfig"/>.
+    /// </returns>
+    public TitleExecutionPetition GetFullTepGlobal()
+    {
+        return TepBase.Clone().Patch(TepGlobal);
+    }
+
     /// <summary>
     /// Gets the merged <see cref="TitleExecutionPetition"/> for the given <paramref name="emulatorFamily"/>,
     /// applying overrides on top of <see cref="TepGlobal"/>.
