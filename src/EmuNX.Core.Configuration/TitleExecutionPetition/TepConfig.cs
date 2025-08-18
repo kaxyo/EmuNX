@@ -5,81 +5,37 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 
 /// <summary>
 /// <para>
-/// Defines how a <see cref="TitleExecutionPetition"/> configuration <b>file/source</b> is structured and managed.
+/// Stores every <see cref="TitleExecutionPetition"/> parsed from an <see cref="IO.ITepConfigParser"/>.
 /// </para>
-/// 
+///
 /// <para>
-/// Each implementation must be able to <see cref="Load"/> all existing data, allow modification (add/update/delete)
-/// of the loaded <see cref="TitleExecutionPetition"/> entries, and finally <see cref="Save"/> the result.
-/// </para>
-/// 
-/// <para>
-/// This configuration supports multiple <see cref="TitleExecutionPetition"/> layers that can <b>patch</b> or override 
-/// previous layers based on the following priority order:
+/// This configuration is made of multiple <see cref="TitleExecutionPetition"/> layers that can <b>patch</b> previous
+/// layers based on the following priority order: (The first item <b>patches</b> the next and so on)
 /// <list type="number">
-///     <item><see cref="TepGlobal"/> - Base configuration applied to all titles</item>
+///     <item><see cref="TepBase"/> - Base configuration for everything</item>
+///     <item><see cref="TepGlobal"/> - Overrides for all titles</item>
 ///     <item><see cref="TepEmulatorFamilies"/> - Overrides for specific emulator families</item>
-///     <item><see cref="TepTitles"/> - Overrides for specific titles</item>
+///     <item><see cref="TepTitles"/> - Overrides for specific titles applied to one of <see cref="TepEmulatorFamilies"/></item>
 /// </list>
 /// </para>
+///
+/// <para>
+/// To get some <see cref="TitleExecutionPetition"/> with previous layers patched to it, you can use the getters
+/// <b>GetFullTep...</b>.
+/// </para>
 /// </summary>
-public abstract class TepConfig
+public class TepConfig
 {
-    public abstract Version VersionTarget { get; }
-    public Version VersionCurrent = new(0, 0);
-
-    #region Storage
-    /// <summary>
-    /// Loads every <see cref="TitleExecutionPetition"/> stored in the <b>file/source</b>.
-    /// </summary>
-    /// <seealso cref="TepGlobal"/>
-    /// <seealso cref="TepEmulatorFamilies"/>
-    /// <seealso cref="TepTitles"/>
-    /// <returns>If the <b>loading</b> succeeds <c>null</c>, if it fails <see cref="TepConfigError"/>.</returns>
-    public abstract Task<TepConfigError?> Load();
-    
-    /// <summary>
-    /// Saves the current state of every <see cref="TitleExecutionPetition"/> loaded into a <b>file/source</b>.
-    /// </summary>
-    /// <seealso cref="TepGlobal"/>
-    /// <seealso cref="TepEmulatorFamilies"/>
-    /// <seealso cref="TepTitles"/>
-    /// <returns>If the <b>saving</b> succeeds <c>null</c>, if it fails <see cref="TepConfigError"/>.</returns>
-    public abstract Task<TepConfigError?> Save();
-    #endregion
-
-    #region Current state
     public readonly TitleExecutionPetition TepBase = new (
         TepEmulatorFamily.Ask,
         "default",
         TepUserPrompt.Ask
     );
+
+    #region Stored and retrieved patches
     public TitleExecutionPetition TepGlobal = new();
-    public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies { get; private set; } = new();
-    public Dictionary<TitleId, TitleExecutionPetition> TepTitles { get; } = new();
-    #endregion
-    
-    #region Restart
-    /// <summary>
-    /// Restarts <see cref="TepGlobal"/>, <see cref="TepEmulatorFamilies"/> and <see cref="TepTitles"/> to their
-    /// default values.
-    /// </summary>
-    /// <remarks>
-    /// This is <b>not executed at instantiation</b>, meaning that unless you call <see cref="Load"/> or
-    /// <see cref="RestartState"/>, the state-values will not be correct/unexpected.
-    /// </remarks>
-    public void RestartState()
-    {
-        TepGlobal = new TitleExecutionPetition();
-
-        TepEmulatorFamilies = new Dictionary<EmulatorFamily, TitleExecutionPetition>()
-        {
-            { EmulatorFamily.Yuzu, new TitleExecutionPetition() },
-            { EmulatorFamily.Ryujinx, new TitleExecutionPetition() }
-        };
-
-        TepTitles.Clear();
-    }
+    public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies = new();
+    public Dictionary<TitleId, TitleExecutionPetition> TepTitles = new();
     #endregion
 
     #region Utilities
