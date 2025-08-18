@@ -3,31 +3,29 @@ using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 using Utils;
 using TepEmulatorFamilyExtensions = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamilyExtensions;
-using TepEmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
-using TepUserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPrompt;
 using TepUserPromptExtensions = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPromptExtensions;
 using System.Linq;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 
 /// <summary>
-/// Implements <see cref="TitleExecutionPetitionConfig"/> to manage the configuration inside a <b>JSON</b> file.
+/// Implements <see cref="TepConfig"/> to manage the configuration inside a <b>JSON</b> file.
 /// To change the <b>file path</b> after instantiation, please change <see cref="FilePath"/>.
 /// </summary>
-public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionPetitionConfig
+public class TepConfigJson(string filePath) : TepConfig
 {
     public override Version VersionTarget { get; } = new(1, 0);
 
     #region Storage
     public string FilePath = filePath;
 
-    public override async Task<TitleExecutionPetitionConfigError?> Load()
+    public override async Task<TepConfigError?> Load()
     {
         RestartState();
 
         // Read file
         var jsonString = await EasyFile.ReadText(FilePath);
-        if (jsonString == null) return TitleExecutionPetitionConfigError.FileReadError;
+        if (jsonString == null) return TepConfigError.FileReadError;
 
         // Open JSON abstraction
         using var document = JsonDocument.Parse(jsonString);
@@ -38,7 +36,7 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
             return error;
 
         if (!VersionTarget.IsCompatibleWith(VersionCurrent))
-            return TitleExecutionPetitionConfigError.MetaVersionNotCompatible;
+            return TepConfigError.MetaVersionNotCompatible;
 
         // data: Load JsonElement
         if (root.GetObject("data") is not { } dataElement)
@@ -70,7 +68,7 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
 
     #region Load: Functions
 
-    private TitleExecutionPetitionConfigError? LoadMetaVersion(JsonElement root)
+    private TepConfigError? LoadMetaVersion(JsonElement root)
     {
         // We need to have "meta.version" and it must be an array
         var versionArray = root
@@ -78,13 +76,13 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
             .GetArray("version");
 
         if (versionArray is null)
-            return TitleExecutionPetitionConfigError.MetaVersionNotFound;
+            return TepConfigError.MetaVersionNotFound;
 
         // Read each number from "meta.version"
         if (versionArray.Length < 2 ||
             !versionArray[0].TryGetUInt32(out var major) ||
             !versionArray[1].TryGetUInt32(out var minor))
-            return TitleExecutionPetitionConfigError.MetaVersionNotFound;
+            return TepConfigError.MetaVersionNotFound;
 
         // Store the numbers in "VersionCurrent"
         VersionCurrent = new Version(major, minor);
@@ -134,13 +132,13 @@ public class TitleExecutionPetitionConfigJson(string filePath) : TitleExecutionP
     }
     #endregion
 
-    public override async Task<TitleExecutionPetitionConfigError?> Save()
+    public override async Task<TepConfigError?> Save()
     {
         var jsonString = "";
         throw new NotImplementedException();
         // Read file
         var success = await EasyFile.WriteText(FilePath, jsonString);
-        if (!success) return TitleExecutionPetitionConfigError.Unknown;
+        if (!success) return TepConfigError.Unknown;
     }
 
     #region Save: Functions

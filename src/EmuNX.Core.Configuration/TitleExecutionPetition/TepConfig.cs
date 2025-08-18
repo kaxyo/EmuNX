@@ -23,7 +23,7 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 /// </list>
 /// </para>
 /// </summary>
-public abstract class TitleExecutionPetitionConfig
+public abstract class TepConfig
 {
     public abstract Version VersionTarget { get; }
     public Version VersionCurrent = new(0, 0);
@@ -35,8 +35,8 @@ public abstract class TitleExecutionPetitionConfig
     /// <seealso cref="TepGlobal"/>
     /// <seealso cref="TepEmulatorFamilies"/>
     /// <seealso cref="TepTitles"/>
-    /// <returns>If the <b>loading</b> succeeds <c>null</c>, if it fails <see cref="TitleExecutionPetitionConfigError"/>.</returns>
-    public abstract Task<TitleExecutionPetitionConfigError?> Load();
+    /// <returns>If the <b>loading</b> succeeds <c>null</c>, if it fails <see cref="TepConfigError"/>.</returns>
+    public abstract Task<TepConfigError?> Load();
     
     /// <summary>
     /// Saves the current state of every <see cref="TitleExecutionPetition"/> loaded into a <b>file/source</b>.
@@ -44,15 +44,15 @@ public abstract class TitleExecutionPetitionConfig
     /// <seealso cref="TepGlobal"/>
     /// <seealso cref="TepEmulatorFamilies"/>
     /// <seealso cref="TepTitles"/>
-    /// <returns>If the <b>saving</b> succeeds <c>null</c>, if it fails <see cref="TitleExecutionPetitionConfigError"/>.</returns>
-    public abstract Task<TitleExecutionPetitionConfigError?> Save();
+    /// <returns>If the <b>saving</b> succeeds <c>null</c>, if it fails <see cref="TepConfigError"/>.</returns>
+    public abstract Task<TepConfigError?> Save();
     #endregion
 
     #region Current state
     public readonly TitleExecutionPetition TepBase = new (
-        TitleExecutionPetitionEmulatorFamily.Ask,
+        TepEmulatorFamily.Ask,
         "default",
-        TitleExecutionPetitionUserPrompt.Ask
+        TepUserPrompt.Ask
     );
     public TitleExecutionPetition TepGlobal = new();
     public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies { get; private set; } = new();

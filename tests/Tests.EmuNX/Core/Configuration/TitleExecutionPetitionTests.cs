@@ -10,9 +10,9 @@ public class TitleExecutionPetitionTests
     {
         // Arrange
         var original = new TitleExecutionPetition(
-            TitleExecutionPetitionEmulatorFamily.Yuzu,
+            TepEmulatorFamily.Yuzu,
             "yuzu-stable",
-            TitleExecutionPetitionUserPrompt.Ask
+            TepUserPrompt.Ask
         );
 
         // Act
@@ -30,24 +30,24 @@ public class TitleExecutionPetitionTests
     {
         // Arrange
         var basePetition = new TitleExecutionPetition(
-            TitleExecutionPetitionEmulatorFamily.Ryujinx,
+            TepEmulatorFamily.Ryujinx,
             "ryubing-1.3.2",
-            TitleExecutionPetitionUserPrompt.Ask
+            TepUserPrompt.Ask
         );
 
         var patch = new TitleExecutionPetition(
             null,
             null,
-            TitleExecutionPetitionUserPrompt.None
+            TepUserPrompt.None
         );
 
         // Act
         var result = basePetition.Clone().Patch(patch);
 
         // Assert
-        Assert.Equal(TitleExecutionPetitionEmulatorFamily.Ryujinx, result.EmulatorFamily);
+        Assert.Equal(TepEmulatorFamily.Ryujinx, result.EmulatorFamily);
         Assert.Equal("ryubing-1.3.2", result.EmulatorRunner);
-        Assert.Equal(TitleExecutionPetitionUserPrompt.None, result.UserPrompt);
+        Assert.Equal(TepUserPrompt.None, result.UserPrompt);
     }
 
     [Fact]
@@ -55,9 +55,9 @@ public class TitleExecutionPetitionTests
     {
         // Arrange
         var original = new TitleExecutionPetition(
-            TitleExecutionPetitionEmulatorFamily.Yuzu,
+            TepEmulatorFamily.Yuzu,
             "yuzu-ea-latest",
-            TitleExecutionPetitionUserPrompt.Ask
+            TepUserPrompt.Ask
         );
 
         var patch = new TitleExecutionPetition(null, null, null);

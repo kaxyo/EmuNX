@@ -1,6 +1,6 @@
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
-public enum TitleExecutionPetitionUserPrompt
+public enum TepUserPrompt
 {
     /// The system will ask which user from the emulator runner to play with.
     Ask,
@@ -11,22 +11,22 @@ public enum TitleExecutionPetitionUserPrompt
 
 public static class TitleExecutionPetitionUserPromptExtensions
 {
-    public static string ToString(this TitleExecutionPetitionUserPrompt value)
+    public static string ToString(this TepUserPrompt value)
     {
         return value switch
         {
-            TitleExecutionPetitionUserPrompt.Ask => "ask",
-            TitleExecutionPetitionUserPrompt.None => "none",
+            TepUserPrompt.Ask => "ask",
+            TepUserPrompt.None => "none",
             _ => "ask"
         };
     }
     
-    public static TitleExecutionPetitionUserPrompt? FromString(string family)
+    public static TepUserPrompt? FromString(string family)
     {
         return family.ToLower() switch
         {
-            "ask" => TitleExecutionPetitionUserPrompt.Ask,
-            "none" => TitleExecutionPetitionUserPrompt.None,
+            "ask" => TepUserPrompt.Ask,
+            "none" => TepUserPrompt.None,
             _ => null
         };
     }

@@ -1,6 +1,6 @@
 namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 
-public enum TitleExecutionPetitionConfigError
+public enum TepConfigError
 {
     Unknown,
     FileReadError,

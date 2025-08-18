@@ -1,25 +1,24 @@
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
-using TepEmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
-using TepUserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPrompt;
+using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 using Version = EmuNX.Core.Configuration.Version;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
 
-public class TitleExecutionPetitionConfigJsonTests
+public class TepConfigJsonTests
 {
     [Theory]
-    [InlineData("file_not_found", TitleExecutionPetitionConfigError.FileReadError)]
-    [InlineData("title_execution.err.1.meta_version.not_found", TitleExecutionPetitionConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.2.meta_version.not_an_array", TitleExecutionPetitionConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.3.meta_version.invalid_array", TitleExecutionPetitionConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.4.meta_version.invalid_numbers", TitleExecutionPetitionConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.5.meta_version.not_compatible", TitleExecutionPetitionConfigError.MetaVersionNotCompatible)]
-    public async Task Load_ShouldReturnExpectedError(string fileName, TitleExecutionPetitionConfigError? expectedError)
+    [InlineData("file_not_found", TepConfigError.FileReadError)]
+    [InlineData("title_execution.err.1.meta_version.not_found", TepConfigError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.2.meta_version.not_an_array", TepConfigError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.3.meta_version.invalid_array", TepConfigError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.4.meta_version.invalid_numbers", TepConfigError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.5.meta_version.not_compatible", TepConfigError.MetaVersionNotCompatible)]
+    public async Task Load_ShouldReturnExpectedError(string fileName, TepConfigError? expectedError)
     {
         // Arrange
-        var config = new TitleExecutionPetitionConfigJson($"data/configuration/{fileName}.json");
+        var config = new TepConfigJson($"data/configuration/{fileName}.json");
 
         // Act
         var result = await config.Load();
@@ -32,7 +31,7 @@ public class TitleExecutionPetitionConfigJsonTests
     public async Task Load_IsValid()
     {
         // Arrange
-        var config = new TitleExecutionPetitionConfigJson("data/configuration/title_execution.ok.json");
+        var config = new TepConfigJson("data/configuration/title_execution.ok.json");
 
         // Act
         var result = await config.Load();

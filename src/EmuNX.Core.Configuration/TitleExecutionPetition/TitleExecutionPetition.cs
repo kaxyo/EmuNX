@@ -1,11 +1,10 @@
-using EmulatorFamily = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionEmulatorFamily;
-using UserPrompt = EmuNX.Core.Configuration.TitleExecutionPetition.Types.TitleExecutionPetitionUserPrompt;
+using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 
 /// <summary>
 /// <para>
-/// Defines a possibly <b>ambiguous petition</b> on how a <b>title should be executed</b>.
+/// Defines a possible <b>ambiguous petition</b> on how a <b>title should be executed</b>.
 /// </para>
 /// 
 /// <para>
@@ -28,11 +27,11 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 /// This class supports <b>patching</b> operations between two <see cref="TitleExecutionPetition"/>.
 /// See <see cref="Patch"/> method for more information.
 /// </remarks>
-public class TitleExecutionPetition(EmulatorFamily? emulatorFamily, string? emulatorRunner, UserPrompt? userPrompt)
+public class TitleExecutionPetition(TepEmulatorFamily? emulatorFamily, string? emulatorRunner, TepUserPrompt? userPrompt)
 {
-    public EmulatorFamily? EmulatorFamily = emulatorFamily;
+    public TepEmulatorFamily? EmulatorFamily = emulatorFamily;
     public string? EmulatorRunner = emulatorRunner;
-    public UserPrompt? UserPrompt = userPrompt;
+    public TepUserPrompt? UserPrompt = userPrompt;
 
     public TitleExecutionPetition() : this(null, null, null) {}
 
