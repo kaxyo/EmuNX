@@ -32,13 +32,13 @@ public class TepConfig
         TepUserPrompt.Ask
     );
 
-    #region Stored and retrieved patches
+    #region TitleExecutionPetitions as they are stored
     public TitleExecutionPetition TepGlobal = new();
     public Dictionary<EmulatorFamily, TitleExecutionPetition> TepEmulatorFamilies = new();
     public Dictionary<TitleId, TitleExecutionPetition> TepTitles = new();
     #endregion
 
-    #region Utilities
+    #region Generate full TitleExecutionPetitions
     /// <returns>
     /// The <see cref="TepGlobal"/> with the previous layers merged.
     /// To learn about the merging order, read the documentation of <seealso cref="TepConfig"/>.
@@ -48,14 +48,15 @@ public class TepConfig
         return TepBase.Clone().Patch(TepGlobal);
     }
 
-    /// <summary>
-    /// Gets the merged <see cref="TitleExecutionPetition"/> for the given <paramref name="emulatorFamily"/>,
-    /// applying overrides on top of <see cref="TepGlobal"/>.
-    /// </summary>
-    /// <param name="emulatorFamily">The emulator family to retrieve its patch.</param>
-    /// <returns>The resulting <see cref="TitleExecutionPetition"/> after applying relevant patches.</returns>
+    /// <param name="emulatorFamily">The key to select one of the <see cref="TitleExecutionPetition"/> from <see cref="TepEmulatorFamilies"/>.</param>
+    /// <returns>
+    /// One of the <see cref="TitleExecutionPetition"/> from <see cref="TepEmulatorFamilies"/> with the previous layers
+    /// merged.
+    /// To learn about the merging order, read the documentation of <seealso cref="TepConfig"/>.
+    /// </returns>
     public TitleExecutionPetition GetFullTepOfEmulatorFamily(EmulatorFamily emulatorFamily)
     {
+        // TODO: Fix
         var tepFinal = TepGlobal.Clone();
 
         if (TepEmulatorFamilies.TryGetValue(emulatorFamily, out var tepEmulatorFamily))
@@ -63,14 +64,13 @@ public class TepConfig
 
         return tepFinal;
     }
-    
-    /// <summary>
-    /// Gets the merged <see cref="TitleExecutionPetition"/> for the given <paramref name="titleId"/>,
-    /// applying overrides from <see cref="TepGlobal"/> and <see cref="TepEmulatorFamilies"/> based on the properties of
-    /// <paramref name="titleId"/>.
-    /// </summary>
-    /// <param name="titleId">The title ID to retrieve its patch.</param>
-    /// <returns>The resulting <see cref="TitleExecutionPetition"/> after applying all relevant patches.</returns>
+
+    /// <param name="titleId">The key to select one of the <see cref="TitleExecutionPetition"/> from <see cref="TepTitles"/>.</param>
+    /// <returns>
+    /// One of the <see cref="TitleExecutionPetition"/> from <see cref="TepTitles"/> with the previous layers
+    /// merged.
+    /// To learn about the merging order, read the documentation of <seealso cref="TepConfig"/>.
+    /// </returns>
     public TitleExecutionPetition GetFullTepOfTitleId(TitleId titleId)
     {
         throw new NotImplementedException();
