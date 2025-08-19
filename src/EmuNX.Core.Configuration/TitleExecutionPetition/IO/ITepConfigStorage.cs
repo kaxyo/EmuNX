@@ -37,6 +37,8 @@ public interface ITepConfigStorage
     /// Errors that might arise when <b>loading</b> a <see cref="TepConfig"/>.
     public enum LoadError
     {
+        /// This should never arise as it is a placeholder.
+        Unknown,
         /// The resource (e.g. file) couldn't be read.
         ResourceReadFailed,
         /// A <see cref="Version"/> couldn't be found in the resource.
@@ -48,6 +50,8 @@ public interface ITepConfigStorage
     /// Errors that might arise when <b>saving</b> a <see cref="TepConfig"/>.
     public enum SaveError
     {
+        /// This should never arise as it is a placeholder.
+        Unknown,
         /// The resource (e.g. file) couldn't be written.
         ResourceWriteFailed,
     }
