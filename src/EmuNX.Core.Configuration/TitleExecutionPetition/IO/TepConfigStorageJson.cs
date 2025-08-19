@@ -72,7 +72,12 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     }
 
     #region Load: Functions
-    private JsonDocument? ParseJsonDocument(string jsonString)
+    /// <summary>
+    /// Reads a <c>jsonString</c> and tries to convert it into a <see cref="JsonDocument"/>,
+    /// </summary>
+    /// <param name="jsonString">The <c>string</c> that must be formatted in <b>json</b>.</param>
+    /// <returns><see cref="JsonDocument"/> if the parsing succeeds, <c>null</c> if it fails.</returns>
+    private static JsonDocument? ParseJsonDocument(string jsonString)
     {
         try
         {
@@ -108,7 +113,7 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
             : LoadError.MetaVersionNotCompatible;
     }
 
-    private TitleExecutionPetition DeserializeTitleExecutionPetition(JsonElement root)
+    private static TitleExecutionPetition DeserializeTitleExecutionPetition(JsonElement root)
     {
         var tep = new TitleExecutionPetition();
 
@@ -133,7 +138,14 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     private void LoadTepFromEmulatorsFamily(JsonElement root, EmulatorFamily family, TepConfig config)
     {
         // data.emulators.families.<family>
-        if (root.GetObject(family.ToKeyString()) is { } familyElement)
+        var familyString = family switch
+        {
+            EmulatorFamily.Yuzu => "yuzu",
+            EmulatorFamily.Ryujinx => "ryujinx",
+            _ => "yuzu"
+        };
+
+        if (root.GetObject(familyString) is { } familyElement)
         {
             var tep = DeserializeTitleExecutionPetition(familyElement);
             tep.EmulatorFamily = family.ToTitleExecutionPetitionEmulatorFamily();
