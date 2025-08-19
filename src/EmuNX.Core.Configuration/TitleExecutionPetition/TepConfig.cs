@@ -78,3 +78,28 @@ public class TepConfig
     }
     #endregion
 }
+
+public static class TitleExecutionPetitionDictionaryExtensions
+{
+    // Extension method for Dictionary<TKey, TitleExecutionPetition>
+    public static TitleExecutionPetition GetOrNew<TKey>(this Dictionary<TKey, TitleExecutionPetition> dictionary, TKey key) where TKey : notnull
+    {
+        return dictionary.TryGetValue(key, out var value)
+            ? value
+            : new TitleExecutionPetition();
+    }
+
+    /// Removes all <see cref="TitleExecutionPetition"/> that are <b>empty</b>.
+    /// <seealso cref="TitleExecutionPetition.IsEmpty"/>
+    public static void RemoveEmpty<TKey>(this Dictionary<TKey, TitleExecutionPetition> dictionary) where TKey : notnull
+    {
+        // Collect keys to remove (can't modify while iterating)
+        var keysToRemove = dictionary
+            .Where(kvp => kvp.Value.IsEmpty)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        foreach (var key in keysToRemove)
+            dictionary.Remove(key);
+    }
+}
