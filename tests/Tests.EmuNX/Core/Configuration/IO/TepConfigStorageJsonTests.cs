@@ -1,43 +1,42 @@
+using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
-using Version = EmuNX.Core.Configuration.Version;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
 
-public class TepConfigJsonTests
+public class TepConfigStorageJsonTests
 {
     [Theory]
-    [InlineData("file_not_found", TepConfigError.FileReadError)]
-    [InlineData("title_execution.err.1.meta_version.not_found", TepConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.2.meta_version.not_an_array", TepConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.3.meta_version.invalid_array", TepConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.4.meta_version.invalid_numbers", TepConfigError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.5.meta_version.not_compatible", TepConfigError.MetaVersionNotCompatible)]
-    public async Task Load_ShouldReturnExpectedError(string fileName, TepConfigError? expectedError)
+    [InlineData("file_not_found", LoadError.ResourceAccessFailed)]
+    [InlineData("title_execution.err.1.meta_version.not_found", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.2.meta_version.not_an_array", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.3.meta_version.invalid_array", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.4.meta_version.invalid_numbers", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.5.meta_version.not_compatible", LoadError.MetaVersionNotCompatible)]
+    public void Load_ShouldReturnExpectedError(string fileName, LoadError expectedError)
     {
         // Arrange
-        var config = new TepConfigJson($"data/configuration/{fileName}.json");
+        var configStorage = new TepConfigStorageJson($"data/configuration/{fileName}.json");
 
         // Act
-        var result = await config.Load();
+        var result = configStorage.Load();
 
         // Assert
-        Assert.Equal(expectedError, result);
+        Assert.Equal(Result<TepConfig, LoadError>.Err(expectedError), result);
     }
 
     [Fact]
-    public async Task Load_IsValid()
+    public void Load_IsValid()
     {
         // Arrange
-        var config = new TepConfigJson("data/configuration/title_execution.ok.json");
+        var configStorage = new TepConfigStorageJson($"data/configuration/title_execution.ok.json");
 
         // Act
-        var result = await config.Load();
-
-        // Assert: Errors
-        Assert.Null(result);
+        var result = configStorage.Load();
+        Assert.True(result.IsOk);
+        var config = result.Success;
 
         // Assert: Emulators.Global
         Assert.Equal(config.TepGlobal, new TitleExecutionPetition(
@@ -58,7 +57,7 @@ public class TepConfigJsonTests
             "ryubing-1.3.2",
             TepUserPrompt.None
         ));
-        
+
         // Assert: Titles
         Assert.Equal(config.TepTitles[new TitleId(0x0100F2C0115B6000)], new TitleExecutionPetition(
             null,
