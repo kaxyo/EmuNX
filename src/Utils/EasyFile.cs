@@ -40,22 +40,4 @@ public class EasyFile
             return false;
         }
     }
-
-    /// <summary>
-    /// Appends text to the end of the specified file asynchronously.
-    /// Returns true if successful, false if an error occurs.
-    /// </summary>
-    /// <returns>True if succeeded, else false.</returns>
-    public static async Task<bool> AppendText(string filePath, string content)
-    {
-        try
-        {
-            await File.AppendAllTextAsync(filePath, content);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
 }
