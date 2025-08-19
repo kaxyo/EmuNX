@@ -22,7 +22,7 @@ public interface ITepConfigStorage
     /// <typeparamref name="TSuccess"/> is <see cref="TepConfig"/> when the operation succeeds,
     /// and <typeparamref name="TError"/> is <see cref="TepConfigStorageError"/> when it fails.
     /// </returns>
-    Result<TepConfig, TepConfigStorageError> Load();
+    Result<TepConfig, LoadError> Load();
 
     /// <summary>
     /// Saves the given <see cref="TepConfig"/> instance to the storage medium.
@@ -32,5 +32,23 @@ public interface ITepConfigStorage
     /// A <see cref="TepConfigStorageError"/> if the save operation fails; 
     /// otherwise <c>null</c> when the operation succeeds.
     /// </returns>
-    TepConfigStorageError? Save(TepConfig config);
+    SaveError? Save(TepConfig config);
+
+    /// Errors that might arise when <b>loading</b> a <see cref="TepConfig"/>.
+    public enum LoadError
+    {
+        /// The resource (e.g. file) couldn't be read.
+        ResourceReadFailed,
+        /// A <see cref="Version"/> couldn't be found in the resource.
+        MetaVersionNotFound,
+        /// The <see cref="Version"/> found in the resource is not compatible.
+        MetaVersionNotCompatible,
+    }
+    
+    /// Errors that might arise when <b>saving</b> a <see cref="TepConfig"/>.
+    public enum SaveError
+    {
+        /// The resource (e.g. file) couldn't be written.
+        ResourceWriteFailed,
+    }
 }
