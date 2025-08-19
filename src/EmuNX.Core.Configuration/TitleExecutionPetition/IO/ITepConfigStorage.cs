@@ -9,6 +9,12 @@ namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 public interface ITepConfigStorage
 {
     /// <summary>
+    /// The version accepted by <see cref="Load"/> (based on <see cref="Version.IsCompatibleWith"/>) and stored by
+    /// <see cref="Save"/>.
+    /// </summary>
+    Version VersionRequired { get; }
+
+    /// <summary>
     /// Loads a <see cref="TepConfig"/> instance from the storage medium.
     /// </summary>
     /// <returns>
