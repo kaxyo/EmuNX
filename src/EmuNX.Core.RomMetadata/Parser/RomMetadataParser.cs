@@ -198,10 +198,7 @@ public class RomMetadataParser
         var result = pfs.Get.Initialize(_rootLocalStorage);
 
         if (!result.IsSuccess())
-        {
             return RomMetadataParserError.NspLoadRootFsError;
-
-        }
 
         _rootFs = pfs.Release();
         return null;
@@ -243,17 +240,17 @@ public class RomMetadataParser
         if (cnmtEntry == null) return RomMetadataParserError.CnmtNotFound;
 
         var cnmtPath = (U8Span)cnmtEntry.FullPath;
-    
+
         // Read CNMT file stream
         using var cnmtFile = new UniqueRef<IFile>();
         result = cnmtNcaFs.OpenFile(ref cnmtFile.Ref, cnmtPath, OpenMode.Read);
         if (result.IsFailure()) return RomMetadataParserError.CnmtReadError;
-        
+
         // Parse CNMT
         _cnmt = new Cnmt(cnmtFile.Get.AsStream());
 
         // Read control data
-        CnmtContentEntry? control = _cnmt.ContentEntries.FirstOrDefault(e => e.Type == ContentType.Control);
+        var control = _cnmt.ContentEntries.FirstOrDefault(e => e.Type == ContentType.Control);
         _controlNcaIdHex = control?.NcaId.ToHexString().ToLower();
 
         return null;
@@ -307,11 +304,11 @@ public class RomMetadataParser
         byte[] nacpBuffer = new byte[nacpSize];
         using var nacpStream = nacpFile.Get.AsStream();
         // Load NACP stream into buffer
-        int bytesRead = nacpStream.Read(nacpBuffer, 0, nacpSize);
+        var bytesRead = nacpStream.Read(nacpBuffer, 0, nacpSize);
         if (bytesRead != nacpSize) return RomMetadataParserError.NacpReadError;
 
         // Transform NACP buffer into easy-to-read object with Marshall
-        GCHandle handle = GCHandle.Alloc(nacpBuffer, GCHandleType.Pinned);
+        var handle = GCHandle.Alloc(nacpBuffer, GCHandleType.Pinned);
         try
         {
             _nacp = Marshal.PtrToStructure<ApplicationControlProperty>(handle.AddrOfPinnedObject());
