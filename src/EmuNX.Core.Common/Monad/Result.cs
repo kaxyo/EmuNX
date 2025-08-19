@@ -57,6 +57,6 @@ public readonly record struct Result<TSuccess, TError>
     /// </summary>
     /// <param name="error">The error to be wrapped as a failed result.</param>
     /// <returns>A result that represents a failed operation.</returns>
-    public static Result<TSuccess, TError> Fail(TError error)
+    public static Result<TSuccess, TError> Err(TError error)
         => new Result<TSuccess, TError>(default, error, false);
 }
