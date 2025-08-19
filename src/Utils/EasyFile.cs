@@ -3,20 +3,20 @@ namespace Utils;
 /// <summary>
 /// Reads and writes to a file easily. 
 /// </summary>
-public class EasyFile
+public static class EasyFile
 {
     /// <summary>
-    /// Reads the entire content of a text file asynchronously.
+    /// Reads the entire content of a text file.
     /// </summary>
     /// <returns>String if it read, null if the file couldn't be read.</returns>
-    public static async Task<string?> ReadText(string filePath)
+    public static string? ReadText(string filePath)
     {
         if (!File.Exists(filePath))
             return null;
 
         try
         {
-            return await File.ReadAllTextAsync(filePath);
+            return File.ReadAllText(filePath);
         }
         catch
         {
@@ -25,14 +25,14 @@ public class EasyFile
     }
 
     /// <summary>
-    /// Writes the given text to a file asynchronously, overwriting if it already exists.
+    /// Writes the given text to a file, overwriting if it already exists.
     /// </summary>
     /// <returns>True if succeeded, else false.</returns>
-    public static async Task<bool> WriteText(string filePath, string content)
+    public static bool WriteText(string filePath, string content)
     {
         try
         {
-            await File.WriteAllTextAsync(filePath, content);
+            File.WriteAllText(filePath, content);
             return true;
         }
         catch
