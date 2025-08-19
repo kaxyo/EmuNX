@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
@@ -21,15 +22,17 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     #region Storage
     public string FilePath = filePath;
 
-    public Result<TepConfig, LoadError> Load()
+    public ResultLoad Load()
     {
         // Read file
-        var jsonString = EasyFile.ReadText(FilePath);
-        if (jsonString == null) return ResultLoad.Err(LoadError.ResourceAccessFailed);
+        if (EasyFile.ReadText(FilePath) is not {} jsonString)
+            return ResultLoad.Err(LoadError.ResourceAccessFailed);
 
         // Open JSON abstraction
-        // TODO: Handle exception
-        using var document = JsonDocument.Parse(jsonString);
+        using var document = ParseJsonDocument(jsonString);
+        if (document is null)
+            return ResultLoad.Err(LoadError.ResourceDeserializationFailed);
+
         var root = document.RootElement;
 
         // {meta}: Validate Version
@@ -69,6 +72,18 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     }
 
     #region Load: Functions
+    private JsonDocument? ParseJsonDocument(string jsonString)
+    {
+        try
+        {
+            return JsonDocument.Parse(jsonString);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private LoadError? LoadAndValidateMetaVersion(JsonElement root)
     {
         // We need to have "meta.version" and it must be an array
