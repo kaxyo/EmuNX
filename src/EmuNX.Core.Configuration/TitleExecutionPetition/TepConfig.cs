@@ -1,11 +1,12 @@
 using EmuNX.Core.Common.Types;
+using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 
 /// <summary>
 /// <para>
-/// Stores every <see cref="TitleExecutionPetition"/> parsed from an <see cref="IO.ITepConfigParser"/>.
+/// Stores every <see cref="TitleExecutionPetition"/> parsed from an <see cref="ITepConfigStorage"/>.
 /// </para>
 ///
 /// <para>
