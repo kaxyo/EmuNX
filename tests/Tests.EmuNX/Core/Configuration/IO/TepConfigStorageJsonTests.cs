@@ -10,11 +10,12 @@ public class TepConfigStorageJsonTests
 {
     [Theory]
     [InlineData("file_not_found", LoadError.ResourceAccessFailed)]
-    [InlineData("title_execution.err.1.meta_version.not_found", LoadError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.2.meta_version.not_an_array", LoadError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.3.meta_version.invalid_array", LoadError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.4.meta_version.invalid_numbers", LoadError.MetaVersionNotFound)]
-    [InlineData("title_execution.err.5.meta_version.not_compatible", LoadError.MetaVersionNotCompatible)]
+    [InlineData("title_execution.err.read.1.deserialization_failed", LoadError.ResourceDeserializationFailed)]
+    [InlineData("title_execution.err.meta_version.1.not_found", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.meta_version.2.not_an_array", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.meta_version.3.invalid_array", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.meta_version.4.invalid_numbers", LoadError.MetaVersionNotFound)]
+    [InlineData("title_execution.err.meta_version.5.not_compatible", LoadError.MetaVersionNotCompatible)]
     public void Load_ShouldReturnExpectedError(string fileName, LoadError expectedError)
     {
         // Arrange
