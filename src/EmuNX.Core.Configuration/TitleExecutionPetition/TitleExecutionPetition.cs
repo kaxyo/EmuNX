@@ -72,12 +72,25 @@ public class TitleExecutionPetition(TepEmulatorFamily? emulatorFamily, string? e
         return this;
     }
 
+    /// If this has every property set to null.
+    public bool IsEmpty =>
+        (EmulatorFamily, EmulatorRunner, UserPrompt) is (null, null, null);
+
+    /// Sets every property to <c>null</c>.
+    public void Clear()
+    {
+        EmulatorFamily = null;
+        EmulatorRunner = null;
+        UserPrompt = null;
+    }
+
     public TitleExecutionPetition Clone()
     {
         return new TitleExecutionPetition(this.EmulatorFamily, this.EmulatorRunner, this.UserPrompt);
     }
 
-    protected bool Equals(TitleExecutionPetition other)
+    #region CSharp
+    private bool Equals(TitleExecutionPetition other)
     {
         return EmulatorFamily == other.EmulatorFamily && EmulatorRunner == other.EmulatorRunner && UserPrompt == other.UserPrompt;
     }
@@ -94,4 +107,5 @@ public class TitleExecutionPetition(TepEmulatorFamily? emulatorFamily, string? e
     {
         throw new NotImplementedException();
     }
+    #endregion
 }
