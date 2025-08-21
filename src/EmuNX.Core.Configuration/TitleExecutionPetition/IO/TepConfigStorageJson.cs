@@ -213,24 +213,41 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     }
 
     #region Save: Functions
-    private static JsonObject SerializeTitleExecutionPetition(TitleExecutionPetition tep)
+    private static JsonObject? SerializeTitleExecutionPetition(TitleExecutionPetition tep)
     {
+        if (tep.IsEmpty)
+            return null;
+
+        // Create object with null and non-null values
         var root = new JsonObject
         {
             ["emulator"] = new JsonObject
             {
                 ["family"] = TepEmulatorFamilyToJsonString(tep.EmulatorFamily),
-                ["runner"] = tep.EmulatorRunner
+                ["runner"] = tep.EmulatorRunner // TODO: Move extensions to TepConfigJson and use it here
             },
             ["user"] = new JsonObject
             {
                 ["prompt"] = tep.UserPrompt.ToString()
             }
         };
+        
+        // Delete null objects/values
+
+        // {emulator.family}: Delete "family" if it is null
+        if (root.Go("emulator")?.IsNull("family") ?? false)
+            root.Go("emulator")?.Remove("family");
+
+        // {emulator.runner}: Delete "runner" if it is null
+        if (root.Go("emulator")?.IsNull("runner") ?? false)
+            root.Go("emulator")?.Remove("runner");
+
+        // {user.prompt}: Delete "prompt" if it is null
+        if (root.Go("user")?.IsNull("prompt") ?? false)
+            root.Go("user")?.Remove("prompt");
 
         return root;
     }
-
     #endregion
     
     #region Common: Functions
@@ -265,4 +282,21 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         };
     }
     #endregion
+}
+
+file static class JsonExtensions
+{
+    /// <summary>
+    /// Gets the <see cref="JsonObject"/> from <c>jsonNode</c> in a safe and one-liner way.
+    /// </summary>
+    /// <param name="jsonNode">The <see cref="JsonObject"/> that will be read to access <c>key's</c> <see cref="JsonObject"/>.</param>
+    /// <param name="key">The name of the <b>key</b> to enter.</param>
+    /// <returns>The <c>key's</c> <see cref="JsonObject"/> or null if it couldn't enter it.</returns>
+    public static JsonObject? Go(this JsonNode jsonNode, string key) =>
+        jsonNode[key]?.GetValueKind() is JsonValueKind.Object
+            ? jsonNode[key]?.AsObject()
+            : null;
+
+    public static bool IsNull(this JsonObject? jsonObject, string key) =>
+        jsonObject?[key] is null;
 }
