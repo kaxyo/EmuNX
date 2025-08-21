@@ -210,8 +210,8 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
                     ["global"] = SerializeTitleExecutionPetition(config.TepGlobal),
                     ["families"] = new JsonObject
                     {
-                        ["yuzu"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Yuzu]),
-                        ["ryujinx"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Ryujinx])
+                        ["yuzu"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Yuzu].Clone().NullifyEmulatorFamily()),
+                        ["ryujinx"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Ryujinx].Clone().NullifyEmulatorFamily())
                     }
                 },
                 ["titles"] = new JsonObject(
@@ -352,4 +352,25 @@ file static class JsonExtensions
     /// <returns><c>True</c> if the <b>object</b> from <c>key</c> is <c>empty</c>.</returns>
     public static bool IsObjectEmpty(this JsonObject? jsonObject, string key) =>
         (jsonObject?.Go(key)?.Count ?? 0) == 0;
+}
+
+/// <summary>
+/// Extensions that helps <b>serialize</b> and <b>deserialize</b> <see cref="TitleExecutionPetition"/>.
+/// </summary>
+file static class TitleExecutionPetitionStorageExtensions
+{
+    /// <summary>
+    /// Sets to <c>null</c> its <see cref="TitleExecutionPetition.EmulatorFamily"/>. It's meant to be used when
+    /// <b>serializing</b> the <see cref="TitleExecutionPetition"/> for each <b>emulator family</b>, because while they
+    /// are stored without defining its <b>emulator family</b> because it's redundant; The moment
+    /// they <b>deserialized</b> the <see cref="TepConfigStorageJson.LoadTepFromEmulatorsFamily"/> injects
+    /// <see cref="TepEmulatorFamily"/>.
+    /// </summary>
+    /// <param name="tep">The <see cref="TitleExecutionPetition"/> that we want to <b>nullify</b> its <see cref="TitleExecutionPetition.EmulatorFamily"/>.</param>
+    /// <returns>The same <see cref="TitleExecutionPetition"/> as input.</returns>
+    public static TitleExecutionPetition NullifyEmulatorFamily(this TitleExecutionPetition tep)
+    {
+        tep.EmulatorFamily = null;
+        return tep;
+    }
 }
