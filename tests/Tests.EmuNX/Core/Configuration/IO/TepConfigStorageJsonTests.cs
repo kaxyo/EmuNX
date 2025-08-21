@@ -3,7 +3,7 @@ using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
-using System.Text.Json;
+using Newtonsoft.Json.Linq;
 using Utils;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
@@ -89,10 +89,10 @@ public class TepConfigStorageJsonTests
         configStorage.Save(resultConfig.Success);
 
         // Act
-        using var expectedDoc = JsonDocument.Parse(EasyFile.ReadText("data/configuration/title_execution.ok.json") ?? "{}");
-        using var temporalDoc = JsonDocument.Parse(EasyFile.ReadText(temporalNewJsonPath) ?? "{}");
+        var expectedDoc = JToken.Parse(EasyFile.ReadText("data/configuration/title_execution.ok.json") ?? "{}");
+        var temporalDoc = JToken.Parse(EasyFile.ReadText(temporalNewJsonPath) ?? "{}");
 
         // Assert
-        Assert.Equal(expectedDoc.RootElement, temporalDoc.RootElement);
+        Assert.True(JToken.DeepEquals(expectedDoc, temporalDoc));
     }
 }
