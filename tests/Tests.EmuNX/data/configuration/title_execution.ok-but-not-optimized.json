@@ -33,13 +33,21 @@
     },
     "titles": {
       "0100F2C0115B6000": {
+        "emulator": {
+          "family": null,
+          "runner": null
+        },
         "user": {
           "prompt": "none"
         }
       },
       "010093C01F256000": {
         "emulator": {
-          "family": "ryujinx"
+          "family": "ryujinx",
+          "runner": null
+        },
+        "user": {
+          "prompt": null
         }
       }
     }
