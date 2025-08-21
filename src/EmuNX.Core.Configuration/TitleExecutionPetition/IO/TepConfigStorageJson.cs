@@ -256,13 +256,14 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     /// </summary>
     /// <param name="family">The <see cref="TepEmulatorFamily"/> to transform into <c>string</c>.</param>
     /// <returns>A <c>string</c> that represents a <see cref="TepEmulatorFamily"/> with the required format for <c>title_execution.json</c>.</returns>
-    private static string TepEmulatorFamilyToJsonString(TepEmulatorFamily? family)
+    private static string? TepEmulatorFamilyToJsonString(TepEmulatorFamily? family)
     {
         return family switch
         {
             TepEmulatorFamily.Yuzu => "yuzu",
             TepEmulatorFamily.Ryujinx => "ryujinx",
-            _ => "yuzu"
+            TepEmulatorFamily.Ask => "ask",
+            _ => null
         };
     }
 
