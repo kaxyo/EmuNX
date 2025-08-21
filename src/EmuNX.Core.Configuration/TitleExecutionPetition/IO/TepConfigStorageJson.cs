@@ -225,6 +225,10 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
             }
         };
 
+        // Delete null objects/values
+        
+        // TODO: Do the above
+
         // Serialize it into FilePath
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
@@ -270,9 +274,17 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         if (root.Go("emulator")?.IsNull("runner") ?? false)
             root.Go("emulator")?.Remove("runner");
 
+        // {}: Delete "emulator" if it is empty
+        if (root.IsObjectEmpty("emulator"))
+            root.Remove("emulator");
+
         // {user.prompt}: Delete "prompt" if it is null
         if (root.Go("user")?.IsNull("prompt") ?? false)
             root.Go("user")?.Remove("prompt");
+
+        // {}: Delete "emulator" if it is empty
+        if (root.IsObjectEmpty("user"))
+            root.Remove("user");
 
         return root;
     }
@@ -316,13 +328,28 @@ file static class JsonExtensions
     /// Gets the <see cref="JsonObject"/> from <c>jsonNode</c> in a safe and one-liner way.
     /// </summary>
     /// <param name="jsonNode">The <see cref="JsonObject"/> that will be read to access <c>key's</c> <see cref="JsonObject"/>.</param>
-    /// <param name="key">The name of the <b>key</b> to enter.</param>
+    /// <param name="key">The name of the <b>object</b> to get.</param>
     /// <returns>The <c>key's</c> <see cref="JsonObject"/> or null if it couldn't enter it.</returns>
     public static JsonObject? Go(this JsonNode jsonNode, string key) =>
         jsonNode[key]?.GetValueKind() is JsonValueKind.Object
             ? jsonNode[key]?.AsObject()
             : null;
 
+    /// <summary>
+    /// Checks if the <b>value</b> from <c>key</c> is <c>null</c>.
+    /// </summary>
+    /// <param name="jsonObject">The <see cref="JsonObject"/> which has the <b>key</b> that we want to know if its <b>value</b> is <c>null</c>.</param>
+    /// <param name="key">The name of tha <b>value</b> to check.</param>
+    /// <returns><c>True</c> if the <b>value</b> from <c>key</c> is <c>null</c>.</returns>
     public static bool IsNull(this JsonObject? jsonObject, string key) =>
         jsonObject?[key] is null;
+
+    /// <summary>
+    /// Checks if the <b>object</b> from <c>key</c> is <b>empty</b>.
+    /// </summary>
+    /// <param name="jsonObject">The <see cref="JsonObject"/> which has the <b>object</b> that we want to know if its <b>empty</b>.</param>
+    /// <param name="key">The name of tha <b>object</b> to check.</param>
+    /// <returns><c>True</c> if the <b>object</b> from <c>key</c> is <c>empty</c>.</returns>
+    public static bool IsObjectEmpty(this JsonObject? jsonObject, string key) =>
+        (jsonObject?.Go(key)?.Count ?? 0) == 0;
 }
