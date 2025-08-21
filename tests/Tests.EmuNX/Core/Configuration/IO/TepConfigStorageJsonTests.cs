@@ -3,6 +3,8 @@ using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
+using System.Text.Json;
+using Utils;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
 
@@ -32,7 +34,7 @@ public class TepConfigStorageJsonTests
     public void Load_IsValid()
     {
         // Arrange
-        var configStorage = new TepConfigStorageJson($"data/configuration/title_execution.ok.json");
+        var configStorage = new TepConfigStorageJson("data/configuration/title_execution.ok.json");
 
         // Act
         var result = configStorage.Load();
@@ -71,5 +73,26 @@ public class TepConfigStorageJsonTests
             null,
             null
         ));
+    }
+
+    [Fact]
+    public void LoadAndSave_ShouldProduceEqualJsonAsSource()
+    {
+        // Arrange
+        var temporalNewJsonPath = Path.Combine(Path.GetTempPath(), "title_execution.json");
+
+        // This should produce the same JSON
+        var configStorage = new TepConfigStorageJson("data/configuration/title_execution.ok.json");
+        var resultConfig = configStorage.Load();
+        Assert.True(resultConfig.IsOk);
+        configStorage.FilePath = temporalNewJsonPath;
+        configStorage.Save(resultConfig.Success);
+
+        // Act
+        using var expectedDoc = JsonDocument.Parse(EasyFile.ReadText("data/configuration/title_execution.ok.json") ?? "{}");
+        using var temporalDoc = JsonDocument.Parse(EasyFile.ReadText(temporalNewJsonPath) ?? "{}");
+
+        // Assert
+        Assert.Equal(expectedDoc.RootElement, temporalDoc.RootElement);
     }
 }

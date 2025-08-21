@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
@@ -19,7 +21,6 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
 {
     public Version VersionRequired { get; } = new(1, 0);
 
-    #region Storage
     public string FilePath = filePath;
 
     public ResultLoad Load()
@@ -122,7 +123,7 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
 
         // emulation.family = EmulatorFamily ?? .Ask
         if (emulatorElement?.GetString("family") is { } family)
-            tep.EmulatorFamily = TepEmulatorFamilyExtensions.FromString(family) ?? TepEmulatorFamily.Ask;
+            tep.EmulatorFamily = JsonStringToTepEmulatorFamily(family);
 
         // emulation.runner = string
         if (emulatorElement?.GetString("runner") is { } runner)
@@ -135,7 +136,7 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         return tep;
     }
 
-    private void LoadTepFromEmulatorsFamily(JsonElement root, EmulatorFamily family, TepConfig config)
+    private static void LoadTepFromEmulatorsFamily(JsonElement root, EmulatorFamily family, TepConfig config)
     {
         // data.emulators.families.<family>
         var familyString = family switch
@@ -145,15 +146,15 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
             _ => "yuzu"
         };
 
-        if (root.GetObject(familyString) is { } familyElement)
-        {
-            var tep = DeserializeTitleExecutionPetition(familyElement);
-            tep.EmulatorFamily = family.ToTitleExecutionPetitionEmulatorFamily();
-            config.TepEmulatorFamilies[family] = tep;
-        }
+        if (root.GetObject(familyString) is not { } familyElement)
+            return;
+
+        var tep = DeserializeTitleExecutionPetition(familyElement);
+        tep.EmulatorFamily = family.ToTitleExecutionPetitionEmulatorFamily();
+        config.TepEmulatorFamilies[family] = tep;
     }
 
-    private void LoadTepFromTitles(JsonElement root, TepConfig config)
+    private static void LoadTepFromTitles(JsonElement root, TepConfig config)
     {
         foreach (var titleElement in root.EnumerateObject())
         {
@@ -165,9 +166,46 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
 
     public SaveError? Save(TepConfig config)
     {
-        var jsonString = "";
+        // Generate JSON abstraction
+        // TODO: Don't add keys with null values
+        // TODO: Don't add objects with every key being null values
+        var root = new JsonObject
+        {
+            ["meta"] = new JsonObject
+            {
+                ["version"] = new JsonArray { VersionRequired.Major, VersionRequired.Minor }
+            },
+            ["data"] = new JsonObject
+            {
+                ["emulators"] = new JsonObject
+                {
+                    ["global"] = SerializeTitleExecutionPetition(config.TepGlobal),
+                    ["families"] = new JsonObject
+                    {
+                        ["yuzu"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Yuzu]),
+                        ["ryujinx"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Ryujinx])
+                    }
+                },
+                ["titles"] = new JsonObject(
+                    config.TepTitles.Select(kv =>
+                        new KeyValuePair<string, JsonNode?>(
+                            kv.Key.Hex,
+                            SerializeTitleExecutionPetition(kv.Value)
+                        )
+                    )
+                )
+            }
+        };
 
-        // Save file
+        // Serialize it into FilePath
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
+    
+        root.WriteTo(writer);
+        writer.Flush();
+    
+        var jsonString = Encoding.UTF8.GetString(stream.ToArray());
+
         if (EasyFile.WriteText(FilePath, jsonString) is false)
             return SaveError.ResourceWriteFailed;
 
@@ -175,6 +213,56 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     }
 
     #region Save: Functions
+    private static JsonObject SerializeTitleExecutionPetition(TitleExecutionPetition tep)
+    {
+        var root = new JsonObject
+        {
+            ["emulator"] = new JsonObject
+            {
+                ["family"] = TepEmulatorFamilyToJsonString(tep.EmulatorFamily),
+                ["runner"] = tep.EmulatorRunner
+            },
+            ["user"] = new JsonObject
+            {
+                ["prompt"] = tep.UserPrompt.ToString()
+            }
+        };
+
+        return root;
+    }
+
     #endregion
+    
+    #region Common: Functions
+    /// <summary>
+    /// Transforms an <see cref="TepEmulatorFamily"/> into a <c>string</c> with the required format for <c>title_execution.json</c>.
+    /// </summary>
+    /// <param name="family">The <see cref="TepEmulatorFamily"/> to transform into <c>string</c>.</param>
+    /// <returns>A <c>string</c> that represents a <see cref="TepEmulatorFamily"/> with the required format for <c>title_execution.json</c>.</returns>
+    private static string TepEmulatorFamilyToJsonString(TepEmulatorFamily? family)
+    {
+        return family switch
+        {
+            TepEmulatorFamily.Yuzu => "yuzu",
+            TepEmulatorFamily.Ryujinx => "ryujinx",
+            _ => "yuzu"
+        };
+    }
+
+    /// <summary>
+    /// Transforms n <c>string</c> into an <see cref="TepEmulatorFamily"/>.
+    /// </summary>
+    /// <param name="jsonString">The <c>string</c> that will be parsed into an <see cref="TepEmulatorFamily"/>.</param>
+    /// <returns>An <see cref="TepEmulatorFamily"/>.</returns>
+    private static TepEmulatorFamily JsonStringToTepEmulatorFamily(string jsonString)
+    {
+        return jsonString.ToLower() switch
+        {
+            "yuzu" => TepEmulatorFamily.Yuzu,
+            "ryujinx" => TepEmulatorFamily.Ryujinx,
+            // "ask" => TepEmulatorFamily.Ask,
+            _ => TepEmulatorFamily.Ask
+        };
+    }
     #endregion
 }
