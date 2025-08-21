@@ -8,26 +8,3 @@ public enum TepUserPrompt
     /// by the runner's settings.
     None,
 }
-
-public static class TitleExecutionPetitionUserPromptExtensions
-{
-    public static string ToString(this TepUserPrompt value)
-    {
-        return value switch
-        {
-            TepUserPrompt.Ask => "ask",
-            TepUserPrompt.None => "none",
-            _ => "ask"
-        };
-    }
-    
-    public static TepUserPrompt? FromString(string family)
-    {
-        return family.ToLower() switch
-        {
-            "ask" => TepUserPrompt.Ask,
-            "none" => TepUserPrompt.None,
-            _ => null
-        };
-    }
-}
