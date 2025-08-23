@@ -45,6 +45,24 @@ public readonly record struct Result<TOk, TError>
         => new(default, error, false);
 
     /// <summary>
+    /// Creates a new result with the same success value but a different error type.
+    /// Only valid when this result is a success.
+    /// </summary>
+    public Result<TOk, TNewError> WithOtherFailureType<TNewError>()
+        => IsOk
+            ? Result<TOk, TNewError>.Success(Ok)
+            : throw new InvalidOperationException("Cannot change failure type when the result is an error.");
+
+    /// <summary>
+    /// Creates a new result with the same error value but a different success type.
+    /// Only valid when this result is a failure.
+    /// </summary>
+    public Result<TNewOk, TError> WithOtherSuccessType<TNewOk>()
+        => IsErr
+            ? Result<TNewOk, TError>.Failure(Error)
+            : throw new InvalidOperationException("Cannot change success type when the result is a success.");
+
+    /// <summary>
     /// Gets the success value if the result represents a successful operation.
     /// Throws <see cref="InvalidOperationException"/> if accessed when the result is a failure.
     /// </summary>
