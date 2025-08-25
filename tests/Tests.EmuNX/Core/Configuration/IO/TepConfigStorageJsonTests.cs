@@ -5,6 +5,7 @@ using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 using Newtonsoft.Json.Linq;
 using Utils;
+using Utils.Json;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
 
@@ -21,7 +22,7 @@ public class TepConfigStorageJsonTests
     public void Load_ShouldReturnExpectedError(string fileName, LoadError expectedError)
     {
         // Arrange
-        var configStorage = new TepConfigStorageJson($"data/configuration/{fileName}.json");
+        var configStorage = new TepConfigStorageJson(new JsonStorage($"data/configuration/{fileName}.json"));
 
         // Act
         var result = configStorage.Load();
@@ -34,7 +35,7 @@ public class TepConfigStorageJsonTests
     public void Load_IsValid()
     {
         // Arrange
-        var configStorage = new TepConfigStorageJson("data/configuration/title_execution.ok.json");
+        var configStorage = new TepConfigStorageJson(new JsonStorage("data/configuration/title_execution.ok.json"));
 
         // Act
         var result = configStorage.Load();
@@ -82,10 +83,12 @@ public class TepConfigStorageJsonTests
         var temporalNewJsonPath = Path.Combine(Path.GetTempPath(), "title_execution.json");
 
         // This should produce the same JSON
-        var configStorage = new TepConfigStorageJson("data/configuration/title_execution.ok.json");
+        // TODO: Inspect further
+        var jsonStorage = new JsonStorage("data/configuration/title_execution.ok.json");
+        var configStorage = new TepConfigStorageJson(jsonStorage);
         var resultConfig = configStorage.Load();
         Assert.True(resultConfig.IsOk);
-        configStorage.FilePath = temporalNewJsonPath;
+        jsonStorage.FilePath = "temporalNewJsonPath";
         configStorage.Save(resultConfig.Success);
 
         // Act

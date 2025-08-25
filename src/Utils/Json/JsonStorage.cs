@@ -14,6 +14,7 @@ namespace Utils.Json;
 /// <param name="writerOptions">Settings that change the <see cref="Save"/> behaviour.</param>
 public class JsonStorage(string filePath, JsonWriterOptions? writerOptions = null, bool storeLastJsonNodeLoaded = false, bool storeLastJsonNodeSaved = false)
 {
+    public string FilePath = filePath;
     private static readonly JsonWriterOptions DefaultJsonWriterOptions = new() { Indented = false };
     private readonly JsonWriterOptions _jsonWriterOptions = writerOptions ?? DefaultJsonWriterOptions;
 
@@ -25,12 +26,13 @@ public class JsonStorage(string filePath, JsonWriterOptions? writerOptions = nul
     /// <summary>
     /// Reads a <b>file</b> and tries to parse it as <b>JSON</b>.
     /// </summary>
-    /// <returns>A <see cref="JsonNode"/> if <b>loading</b> and <b>parsing</b> succeed or an <see cref="Exception"/> otherwise.</returns>
-    public Result<JsonNode, Exception> Load()
+    /// <returns>A <see cref="JsonNode"/> if <b>loading</b> and <b>parsing</b> succeed or an <c>bool</c> that tells if
+    /// the failure occurred when parsing the <b>JSON</b>.</returns>
+    public Result<JsonNode, bool> Load()
     {
         try
         {
-            using var fs = File.OpenRead(filePath);
+            using var fs = File.OpenRead(FilePath);
             var buffer = new byte[fs.Length];
             fs.ReadExactly(buffer);
 
@@ -41,12 +43,12 @@ public class JsonStorage(string filePath, JsonWriterOptions? writerOptions = nul
                 LastJsonNodeLoaded = node;
 
             return node is null
-                ? Result<JsonNode, Exception>.Failure(new Exception("JsonNode.Parse returned null."))
-                : Result<JsonNode, Exception>.Success(node);
+                ? Result<JsonNode, bool>.Failure(true)
+                : Result<JsonNode, bool>.Success(node);
         }
         catch (Exception ex)
         {
-            return Result<JsonNode, Exception>.Failure(ex);
+            return Result<JsonNode, bool>.Failure(ex is JsonException);
         }
     }
 
@@ -61,7 +63,7 @@ public class JsonStorage(string filePath, JsonWriterOptions? writerOptions = nul
 
         try
         {
-            using var fs = File.Open(filePath, FileMode.Create, FileAccess.Write);
+            using var fs = File.Open(FilePath, FileMode.Create, FileAccess.Write);
             using var writer = new Utf8JsonWriter(fs, _jsonWriterOptions);
             node.WriteTo(writer);
             writer.Flush();

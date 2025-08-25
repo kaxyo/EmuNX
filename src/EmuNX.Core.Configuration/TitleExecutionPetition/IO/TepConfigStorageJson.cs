@@ -14,34 +14,24 @@ using ResultLoad = Result<TepConfig, LoadError>;
 /// Implements <see cref="TepConfig"/> to manage the configuration inside a <b>JSON</b> file.
 /// To change the <b>file path</b> after instantiation, please change <see cref="FilePath"/>.
 /// </summary>
-public class TepConfigStorageJson(string filePath) : ITepConfigStorage
+public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
 {
     public Version VersionRequired { get; } = new(1, 0);
 
-    public string FilePath = filePath;
-    public JsonStorage JsonStorage = new(filePath);
-
     public ResultLoad Load()
     {
-        // // Read file
-        // var result = JsonStorage.Load();
-
-        // if (result.IsErr)
-        //     return ResultLoad.Err(LoadError.ResourceAccessFailed);
-
-        // // Open JSON abstraction
-        // var root = result.Ok;
-
         // Read file
-        if (EasyFile.ReadText(FilePath) is not {} jsonString)
-            return ResultLoad.Err(LoadError.ResourceAccessFailed);
+        var result = jsonStorage.Load();
+
+        if (result.IsErr)
+            return ResultLoad.Err(
+                result.Error
+                    ? LoadError.ResourceDeserializationFailed
+                    : LoadError.ResourceAccessFailed
+            );
 
         // Open JSON abstraction
-        using var document = ParseJsonDocument(jsonString);
-        if (document is null)
-            return ResultLoad.Err(LoadError.ResourceDeserializationFailed);
-
-        var root = document.RootElement;
+        var root = result.Ok;
 
         // {meta}: Validate Version
         if (LoadAndValidateMetaVersion(root) is { } error)
@@ -53,18 +43,18 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         var resultConfig = ResultLoad.Ok(config);
 
         // {data}: Load JsonElement with every TitleExecutionPetition
-        if (root.GetObject("data") is not { } dataElement)
+        if (root.Dig("data") is not { } dataElement)
             return resultConfig;
 
         // {data.emulators}
-        if (dataElement.GetObject("emulators") is { } emulatorsElement)
+        if (dataElement.Dig("emulators") is { } emulatorsElement)
         {
             // {data.emulators.global}
-            if (emulatorsElement.GetObject("global") is { } globalElement)
+            if (emulatorsElement.Dig("global") is { } globalElement)
                 config.TepGlobal = DeserializeTitleExecutionPetition(globalElement);
 
             // {data.emulators.families}
-            if (emulatorsElement.GetObject("families") is { } familiesElement)
+            if (emulatorsElement.Dig("families") is { } familiesElement)
             {
                 LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Yuzu, config);
                 LoadTepFromEmulatorsFamily(familiesElement, EmulatorFamily.Ryujinx, config);
@@ -72,7 +62,7 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         }
 
         // {data.titles}
-        if (dataElement.GetObject("titles") is { } titleElements)
+        if (dataElement.Dig("titles") is { } titleElements)
             LoadTepFromTitles(titleElements, config);
 
         // End
@@ -97,20 +87,19 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         }
     }
 
-    private LoadError? LoadAndValidateMetaVersion(JsonElement root)
+    private LoadError? LoadAndValidateMetaVersion(JsonNode root)
     {
         // We need to have "meta.version" and it must be an array
-        var versionArray = root
-            .GetObject("meta")?
-            .GetArray("version");
+        var versionArray = root.Dig("meta", "version")?.IntoArray();
 
+        
         if (versionArray is null)
             return LoadError.MetaVersionNotFound;
 
         // Read each number from "meta.version"
-        if (versionArray.Length < 2 ||
-            !versionArray[0].TryGetUInt32(out var major) ||
-            !versionArray[1].TryGetUInt32(out var minor))
+        if (versionArray.Length < 2 
+            || !versionArray[0].TryGetValue(out uint major)
+            || !versionArray[1].TryGetValue(out uint minor))
             return LoadError.MetaVersionNotFound;
 
         // Validate the file's version with the parser's
@@ -121,29 +110,37 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
             : LoadError.MetaVersionNotCompatible;
     }
 
-    private static TitleExecutionPetition DeserializeTitleExecutionPetition(JsonElement root)
+    private static TitleExecutionPetition DeserializeTitleExecutionPetition(JsonNode root)
     {
         var tep = new TitleExecutionPetition();
 
-        var emulatorElement = root.GetObject("emulator");
-        var userElement = root.GetObject("user");
-
         // emulation.family = EmulatorFamily ?? .Ask
-        if (emulatorElement?.GetString("family") is { } family)
-            tep.EmulatorFamily = JsonStringToTepEmulatorFamily(family);
+        if (root.Dig("emulator", "family").IntoValue<string>() is {} family)
+            tep.EmulatorFamily = family.ToLower() switch
+            {
+                "yuzu" => TepEmulatorFamily.Yuzu,
+                "ryujinx" => TepEmulatorFamily.Ryujinx,
+                // "ask" => TepEmulatorFamily.Ask,
+                _ => TepEmulatorFamily.Ask
+            };
 
         // emulation.runner = string
-        if (emulatorElement?.GetString("runner") is { } runner)
+        if (root.Dig("emulator", "runner").IntoValue<string>() is {} runner)
             tep.EmulatorRunner = runner;
 
         // user.prompt = UserPrompt ?? .Ask
-        if (userElement?.GetString("prompt") is { } prompt)
-            tep.UserPrompt = JsonStringToTepUserPrompt(prompt);
+        if (root.Dig("user", "prompt").IntoValue<string>() is {} prompt)
+            tep.UserPrompt = prompt.ToLower() switch
+            {
+                "none" => TepUserPrompt.None,
+                // "ask" => TepUserPrompt.Ask,
+                _ => TepUserPrompt.Ask
+            };
 
         return tep;
     }
 
-    private static void LoadTepFromEmulatorsFamily(JsonElement root, EmulatorFamily family, TepConfig config)
+    private static void LoadTepFromEmulatorsFamily(JsonNode root, EmulatorFamily family, TepConfig config)
     {
         // data.emulators.families.<family>
         var familyString = family switch
@@ -153,7 +150,7 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
             _ => "yuzu"
         };
 
-        if (root.GetObject(familyString) is not { } familyElement)
+        if (root.Dig(familyString) is not { } familyElement)
             return;
 
         var tep = DeserializeTitleExecutionPetition(familyElement);
@@ -161,44 +158,16 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         config.TepEmulatorFamilies[family] = tep;
     }
 
-    private static void LoadTepFromTitles(JsonElement root, TepConfig config)
+    private static void LoadTepFromTitles(JsonNode root, TepConfig config)
     {
-        foreach (var titleElement in root.EnumerateObject())
+        if (root.IntoObject() is not { } obj)
+            return;
+
+        foreach (var titleElement in obj)
         {
-            if (TitleId.TryParseHex(titleElement.Name, out var titleId))
+            if (TitleId.TryParseHex(titleElement.Key, out var titleId) && titleElement.Value is not null)
                 config.TepTitles[titleId] = DeserializeTitleExecutionPetition(titleElement.Value);
         }
-    }
-
-    /// <summary>
-    /// Transforms n <c>string</c> into an <see cref="TepEmulatorFamily"/>.
-    /// </summary>
-    /// <param name="jsonString">The <c>string</c> that will be parsed into an <see cref="TepEmulatorFamily"/>.</param>
-    /// <returns>An <see cref="TepEmulatorFamily"/>.</returns>
-    private static TepEmulatorFamily JsonStringToTepEmulatorFamily(string jsonString)
-    {
-        return jsonString.ToLower() switch
-        {
-            "yuzu" => TepEmulatorFamily.Yuzu,
-            "ryujinx" => TepEmulatorFamily.Ryujinx,
-            // "ask" => TepEmulatorFamily.Ask,
-            _ => TepEmulatorFamily.Ask
-        };
-    }
-
-    /// <summary>
-    /// Transforms n <c>string</c> into an <see cref="TepUserPrompt"/>.
-    /// </summary>
-    /// <param name="jsonString">The <c>string</c> that will be parsed into an <see cref="TepUserPrompt"/>.</param>
-    /// <returns>An <see cref="TepUserPrompt"/>.</returns>
-    private static TepUserPrompt JsonStringToTepUserPrompt(string jsonString)
-    {
-        return jsonString.ToLower() switch
-        {
-            "none" => TepUserPrompt.None,
-            // "ask" => TepUserPrompt.Ask,
-            _ => TepUserPrompt.Ask
-        };
     }
     #endregion
 
@@ -240,7 +209,7 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         // TODO: Do the above
 
         // Serialize it into FilePath
-        return JsonStorage.Save(root).IsOk ? null : SaveError.ResourceWriteFailed;
+        return jsonStorage.Save(root).IsOk ? null : SaveError.ResourceWriteFailed;
     }
 
     #region Save: Functions
