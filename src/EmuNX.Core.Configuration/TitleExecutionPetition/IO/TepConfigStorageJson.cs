@@ -1,10 +1,10 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 using Utils;
+using Utils.Json;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 
@@ -19,9 +19,19 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
     public Version VersionRequired { get; } = new(1, 0);
 
     public string FilePath = filePath;
+    public JsonStorage JsonStorage = new(filePath);
 
     public ResultLoad Load()
     {
+        // // Read file
+        // var result = JsonStorage.Load();
+
+        // if (result.IsErr)
+        //     return ResultLoad.Err(LoadError.ResourceAccessFailed);
+
+        // // Open JSON abstraction
+        // var root = result.Ok;
+
         // Read file
         if (EasyFile.ReadText(FilePath) is not {} jsonString)
             return ResultLoad.Err(LoadError.ResourceAccessFailed);
@@ -230,18 +240,7 @@ public class TepConfigStorageJson(string filePath) : ITepConfigStorage
         // TODO: Do the above
 
         // Serialize it into FilePath
-        using var stream = new MemoryStream();
-        using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
-    
-        root.WriteTo(writer);
-        writer.Flush();
-    
-        var jsonString = Encoding.UTF8.GetString(stream.ToArray());
-
-        if (EasyFile.WriteText(FilePath, jsonString) is false)
-            return SaveError.ResourceWriteFailed;
-
-        return null;
+        return JsonStorage.Save(root).IsOk ? null : SaveError.ResourceWriteFailed;
     }
 
     #region Save: Functions
