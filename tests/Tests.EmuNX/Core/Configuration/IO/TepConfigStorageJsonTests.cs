@@ -3,8 +3,6 @@ using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
-using Newtonsoft.Json.Linq;
-using Utils;
 using Utils.Json;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
@@ -80,22 +78,30 @@ public class TepConfigStorageJsonTests
     public void LoadAndSave_ShouldProduceEqualJsonAsSource()
     {
         // Arrange
-        var temporalNewJsonPath = Path.Combine(Path.GetTempPath(), "title_execution.json");
+        const string pathToLoad = "data/configuration/title_execution.ok.json";
+        var pathToSave = Path.Combine(Path.GetTempPath(), "title_execution.json");
 
-        // This should produce the same JSON
-        // TODO: Inspect further
-        var jsonStorage = new JsonStorage("data/configuration/title_execution.ok.json");
+        var jsonStorage = new JsonStorage(pathToLoad, storeLastJsonNodeLoaded: true);
         var configStorage = new TepConfigStorageJson(jsonStorage);
-        var resultConfig = configStorage.Load();
-        Assert.True(resultConfig.IsOk);
-        jsonStorage.FilePath = "temporalNewJsonPath";
-        configStorage.Save(resultConfig.Success);
 
-        // Act
-        var expectedDoc = JToken.Parse(EasyFile.ReadText("data/configuration/title_execution.ok.json") ?? "{}");
-        var temporalDoc = JToken.Parse(EasyFile.ReadText(temporalNewJsonPath) ?? "{}");
+        // Load JSON from sample
+        jsonStorage.FilePath = pathToLoad;
+        var resultLoadSample = configStorage.Load();
+        Assert.True(resultLoadSample.IsOk);
+        var jsonNodeLoadedSample = jsonStorage.LastJsonNodeLoaded;
 
-        // Assert
-        Assert.True(JToken.DeepEquals(expectedDoc, temporalDoc));
+        // Save loaded JSON in temp
+        jsonStorage.FilePath = pathToSave;
+        var tepConfigLoadedSample = resultLoadSample.Success;
+        var wasTepConfigLoadedSampleSavedInTemp = configStorage.Save(tepConfigLoadedSample) is null;
+        Assert.True(wasTepConfigLoadedSampleSavedInTemp);
+
+        // Load JSON from temp
+        var resultLoadTemp = configStorage.Load();
+        Assert.True(resultLoadTemp.IsOk);
+        var jsonNodeLoadedTemp = jsonStorage.LastJsonNodeLoaded;
+
+        // Assert that both JSON contents are the same
+        TestsUtils.CompareJsonNodes(jsonNodeLoadedSample, jsonNodeLoadedTemp);
     }
 }
