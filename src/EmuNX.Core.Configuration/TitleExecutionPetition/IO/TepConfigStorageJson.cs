@@ -3,7 +3,6 @@ using System.Text.Json.Nodes;
 using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
-using Utils;
 using Utils.Json;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
@@ -70,23 +69,6 @@ public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
     }
 
     #region Load: Functions
-    /// <summary>
-    /// Reads a <c>jsonString</c> and tries to convert it into a <see cref="JsonDocument"/>,
-    /// </summary>
-    /// <param name="jsonString">The <c>string</c> that must be formatted in <b>json</b>.</param>
-    /// <returns><see cref="JsonDocument"/> if the parsing succeeds, <c>null</c> if it fails.</returns>
-    private static JsonDocument? ParseJsonDocument(string jsonString)
-    {
-        try
-        {
-            return JsonDocument.Parse(jsonString);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
     private LoadError? LoadAndValidateMetaVersion(JsonNode root)
     {
         // We need to have "meta.version" and it must be an array
@@ -173,86 +155,58 @@ public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
 
     public SaveError? Save(TepConfig config)
     {
-        // Generate JSON abstraction
-        // TODO: Don't add keys with null values
-        // TODO: Don't add objects with every key being null values
-        var root = new JsonObject
-        {
-            ["meta"] = new JsonObject
-            {
-                ["version"] = new JsonArray { VersionRequired.Major, VersionRequired.Minor }
-            },
-            ["data"] = new JsonObject
-            {
-                ["emulators"] = new JsonObject
-                {
-                    ["global"] = SerializeTitleExecutionPetition(config.TepGlobal),
-                    ["families"] = new JsonObject
-                    {
-                        ["yuzu"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Yuzu].Clone().NullifyEmulatorFamily()),
-                        ["ryujinx"] = SerializeTitleExecutionPetition(config.TepEmulatorFamilies[EmulatorFamily.Ryujinx].Clone().NullifyEmulatorFamily())
-                    }
-                },
-                ["titles"] = new JsonObject(
-                    config.TepTitles.Select(kv =>
-                        new KeyValuePair<string, JsonNode?>(
-                            kv.Key.Hex,
-                            SerializeTitleExecutionPetition(kv.Value)
-                        )
-                    )
-                )
-            }
-        };
-
-        // Delete null objects/values
-        
-        // TODO: Do the above
+        // Generate JSON abstraction using Set method for automatic cleanup
+        var root = new JsonObject()
+            .Set("meta", new JsonObject()
+                .Set("version", new JsonArray { VersionRequired.Major, VersionRequired.Minor }))
+            .Set("data", new JsonObject()
+                .Set("emulators", new JsonObject()
+                    .Set("global", SerializeTitleExecutionPetition(config.TepGlobal))
+                    .Set("families", BuildEmulatorFamiliesObject(config)))
+                .Set("titles", BuildTitlesObject(config.TepTitles)));
 
         // Serialize it into FilePath
         return jsonStorage.Save(root).IsOk ? null : SaveError.ResourceWriteFailed;
     }
 
     #region Save: Functions
+    private static JsonObject BuildEmulatorFamiliesObject(TepConfig config)
+    {
+        var families = new JsonObject();
+
+        InjectEmulatorFamily("yuzu", EmulatorFamily.Yuzu);
+        InjectEmulatorFamily("ryujinx", EmulatorFamily.Ryujinx);
+
+        return families;
+
+        void InjectEmulatorFamily(string key, EmulatorFamily family)
+        {
+            if (config.TepEmulatorFamilies.TryGetValue(family, out var familyTep))
+                families.Set(key, SerializeTitleExecutionPetition(familyTep.Clone().NullifyEmulatorFamily()));
+        }
+    }
+
+    private static JsonObject BuildTitlesObject(Dictionary<TitleId, TitleExecutionPetition> tepTitles)
+    {
+        var titlesObj = new JsonObject();
+
+        foreach (var kv in tepTitles)
+            titlesObj.Set(kv.Key.Hex, SerializeTitleExecutionPetition(kv.Value));
+
+        return titlesObj;
+    }
+
     private static JsonObject? SerializeTitleExecutionPetition(TitleExecutionPetition tep)
     {
         if (tep.IsEmpty)
             return null;
 
-        // Create object with null and non-null values
-        var root = new JsonObject
-        {
-            ["emulator"] = new JsonObject
-            {
-                ["family"] = TepEmulatorFamilyToJsonString(tep.EmulatorFamily),
-                ["runner"] = tep.EmulatorRunner
-            },
-            ["user"] = new JsonObject
-            {
-                ["prompt"] = TepUserPromptToJsonString(tep.UserPrompt)
-            }
-        };
-        
-        // Delete null objects/values
-
-        // {emulator.family}: Delete "family" if it is null
-        if (root.Go("emulator")?.IsNull("family") ?? false)
-            root.Go("emulator")?.Remove("family");
-
-        // {emulator.runner}: Delete "runner" if it is null
-        if (root.Go("emulator")?.IsNull("runner") ?? false)
-            root.Go("emulator")?.Remove("runner");
-
-        // {}: Delete "emulator" if it is empty
-        if (root.IsObjectEmpty("emulator"))
-            root.Remove("emulator");
-
-        // {user.prompt}: Delete "prompt" if it is null
-        if (root.Go("user")?.IsNull("prompt") ?? false)
-            root.Go("user")?.Remove("prompt");
-
-        // {}: Delete "emulator" if it is empty
-        if (root.IsObjectEmpty("user"))
-            root.Remove("user");
+        var root = new JsonObject()
+            .Set("emulator", new JsonObject()
+                .Set("family", TepEmulatorFamilyToJsonString(tep.EmulatorFamily))
+                .Set("runner", tep.EmulatorRunner))
+            .Set("user", new JsonObject()
+                .Set("prompt", TepUserPromptToJsonString(tep.UserPrompt)));
 
         return root;
     }
@@ -288,38 +242,6 @@ public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
         };
     }
     #endregion
-}
-
-file static class JsonExtensions
-{
-    /// <summary>
-    /// Gets the <see cref="JsonObject"/> from <c>jsonNode</c> in a safe and one-liner way.
-    /// </summary>
-    /// <param name="jsonNode">The <see cref="JsonObject"/> that will be read to access <c>key's</c> <see cref="JsonObject"/>.</param>
-    /// <param name="key">The name of the <b>object</b> to get.</param>
-    /// <returns>The <c>key's</c> <see cref="JsonObject"/> or null if it couldn't enter it.</returns>
-    public static JsonObject? Go(this JsonNode jsonNode, string key) =>
-        jsonNode[key]?.GetValueKind() is JsonValueKind.Object
-            ? jsonNode[key]?.AsObject()
-            : null;
-
-    /// <summary>
-    /// Checks if the <b>value</b> from <c>key</c> is <c>null</c>.
-    /// </summary>
-    /// <param name="jsonObject">The <see cref="JsonObject"/> which has the <b>key</b> that we want to know if its <b>value</b> is <c>null</c>.</param>
-    /// <param name="key">The name of tha <b>value</b> to check.</param>
-    /// <returns><c>True</c> if the <b>value</b> from <c>key</c> is <c>null</c>.</returns>
-    public static bool IsNull(this JsonObject? jsonObject, string key) =>
-        jsonObject?[key] is null;
-
-    /// <summary>
-    /// Checks if the <b>object</b> from <c>key</c> is <b>empty</b>.
-    /// </summary>
-    /// <param name="jsonObject">The <see cref="JsonObject"/> which has the <b>object</b> that we want to know if its <b>empty</b>.</param>
-    /// <param name="key">The name of tha <b>object</b> to check.</param>
-    /// <returns><c>True</c> if the <b>object</b> from <c>key</c> is <c>empty</c>.</returns>
-    public static bool IsObjectEmpty(this JsonObject? jsonObject, string key) =>
-        (jsonObject?.Go(key)?.Count ?? 0) == 0;
 }
 
 /// <summary>

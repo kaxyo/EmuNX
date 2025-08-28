@@ -5,6 +5,7 @@ namespace Utils.Json;
 
 public static class JsonExtensions
 {
+    #region Reading
     /// <summary>
     /// Tries to get a property from a JSON Object by key.
     /// </summary>
@@ -86,4 +87,46 @@ public static class JsonExtensions
     /// <remarks>This method is safe because it does not throw any exceptions.</remarks>
     public static JsonObject? IntoObject(this JsonNode? node) =>
         node as JsonObject;
+    #endregion Reading
+
+    #region Writing
+
+    /// <summary>
+    /// Sets a value for the specified key in this <see cref="JsonObject"/>. If the value is considered "empty"
+    /// (null, empty <see cref="JsonObject"/>, or empty <see cref="JsonArray"/>), the key is removed instead of being set.
+    /// </summary>
+    /// <typeparam name="T">The type of the value to set.</typeparam>
+    /// <param name="obj">The <see cref="JsonObject"/> to modify.</param>
+    /// <param name="key">The property key to set or remove.</param>
+    /// <param name="value">The value to set. If null or empty, the key will be removed from the object.</param>
+    /// <returns>The modified <see cref="JsonObject"/> for method chaining.</returns>
+    /// <remarks>
+    /// This method helps keep JSON objects clean by automatically removing keys that would have empty values.
+    /// Empty values are defined as:
+    /// <list type="bullet">
+    /// <item><c>null</c></item>
+    /// <item>Empty <see cref="JsonObject"/> (Count = 0)</item>
+    /// <item>Empty <see cref="JsonArray"/> (Count = 0)</item>
+    /// </list>
+    /// </remarks>
+    public static JsonObject Set<T>(this JsonObject obj, string key, T? value)
+    {
+        // Do not add incomplete data
+        if (value is null || value is JsonObject { Count: 0 } || value is JsonArray { Count: 0 })
+        {
+            obj.Remove(key);
+            return obj;
+        }
+
+        // Some values cannot be added as they are
+        obj[key] = value switch
+        {
+            JsonObject jsonObject => jsonObject,
+            JsonArray jsonArray => jsonArray,
+            _ => JsonValue.Create(value)
+        };
+
+        return obj;
+    }
+    #endregion Writing
 }
