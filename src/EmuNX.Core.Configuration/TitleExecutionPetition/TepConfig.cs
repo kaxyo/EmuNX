@@ -2,6 +2,8 @@ using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 
+// ReSharper disable NonReadonlyMemberInGetHashCode
+
 namespace EmuNX.Core.Configuration.TitleExecutionPetition;
 
 /// <summary>
@@ -74,7 +76,48 @@ public class TepConfig
     /// </returns>
     public TitleExecutionPetition GetFullTepOfTitleId(TitleId titleId)
     {
+        // TODO: Implement
         throw new NotImplementedException();
+    }
+    #endregion
+
+    #region Comparison
+    public override bool Equals(object? obj) =>
+        obj is TepConfig other && Equals(other);
+
+    private bool Equals(TepConfig? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return TepBase.Equals(other.TepBase)
+               && TepGlobal.Equals(other.TepGlobal)
+               && TepEmulatorFamilies.DeepEquals(other.TepEmulatorFamilies)
+               && TepTitles.DeepEquals(other.TepTitles);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = new HashCode();
+
+        // Include base and global
+        hash.Add(TepBase);
+        
+        hash.Add(TepGlobal);
+
+        foreach (var kv in TepEmulatorFamilies.OrderBy(kv => kv.Key))
+        {
+            hash.Add(kv.Key);
+            hash.Add(kv.Value);
+        }
+
+        foreach (var kv in TepTitles.OrderBy(kv => kv.Key))
+        {
+            hash.Add(kv.Key);
+            hash.Add(kv.Value);
+        }
+
+        return hash.ToHashCode();
     }
     #endregion
 }
@@ -101,5 +144,22 @@ public static class TitleExecutionPetitionDictionaryExtensions
 
         foreach (var key in keysToRemove)
             dictionary.Remove(key);
+    }
+
+    public static bool DeepEquals<TKey>(this Dictionary<TKey, TitleExecutionPetition> dictionary, Dictionary<TKey, TitleExecutionPetition> otherDictionary) where TKey : notnull
+    {
+        if (dictionary.Count != otherDictionary.Count)
+            return false;
+
+        // Deep comparison
+        foreach (var kvp in dictionary)
+        {
+            var otherHasKey = otherDictionary.TryGetValue(kvp.Key, out var otherValue);
+
+            if (!otherHasKey || !kvp.Value.Equals(otherValue))
+                return false;
+        }
+
+        return true;
     }
 }

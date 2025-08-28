@@ -4,7 +4,7 @@ namespace EmuNX.Core.Common.Types;
 /// Stores a ROM title identifier like 01006B601380E000.
 /// Provides utility methods for both representation and instantiation.
 /// </summary>
-public readonly struct TitleId : IEquatable<TitleId>
+public readonly struct TitleId : IEquatable<TitleId>, IComparable<TitleId>
 {
     public readonly ulong Num;
 
@@ -38,4 +38,6 @@ public readonly struct TitleId : IEquatable<TitleId>
     public static bool operator ==(TitleId left, TitleId right) => left.Equals(right);
 
     public static bool operator !=(TitleId left, TitleId right) => !(left == right);
+
+    public int CompareTo(TitleId other) => Num.CompareTo(other.Num);
 }

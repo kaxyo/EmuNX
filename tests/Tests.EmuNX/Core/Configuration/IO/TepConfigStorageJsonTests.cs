@@ -33,7 +33,7 @@ public class TepConfigStorageJsonTests
     public void Load_IsValid()
     {
         // Arrange
-        var configStorage = new TepConfigStorageJson(new JsonStorage("data/configuration/title_execution.ok.json"));
+        var configStorage = new TepConfigStorageJson(new JsonStorage("data/configuration/title_execution.ok.trimmed.some_tep_fields_missing.json"));
 
         // Act
         var result = configStorage.Load();
@@ -74,11 +74,20 @@ public class TepConfigStorageJsonTests
         ));
     }
 
-    [Fact]
-    public void LoadAndSave_ShouldProduceEqualJsonAsSource()
+    [Theory]
+    [InlineData("title_execution.ok.trimmed.full")]
+    [InlineData("title_execution.ok.trimmed.no_data")]
+    [InlineData("title_execution.ok.trimmed.no_emulator_families")]
+    [InlineData("title_execution.ok.trimmed.no_emulator_family_ryujinx")]
+    [InlineData("title_execution.ok.trimmed.no_emulator_family_yuzu")]
+    [InlineData("title_execution.ok.trimmed.no_emulator_global")]
+    [InlineData("title_execution.ok.trimmed.no_emulators")]
+    [InlineData("title_execution.ok.trimmed.no_titles")]
+    [InlineData("title_execution.ok.trimmed.some_tep_fields_missing")]
+    public void LoadAndSave_ShouldProduceEqualJsonAsSample(string fileName)
     {
         // Arrange
-        const string pathToLoad = "data/configuration/title_execution.ok.json";
+        var pathToLoad = $"data/configuration/{fileName}.json";
         var pathToSave = Path.Combine(Path.GetTempPath(), "title_execution.json");
 
         var jsonStorage = new JsonStorage(pathToLoad, storeLastJsonNodeLoaded: true);
@@ -88,20 +97,22 @@ public class TepConfigStorageJsonTests
         jsonStorage.FilePath = pathToLoad;
         var resultLoadSample = configStorage.Load();
         Assert.True(resultLoadSample.IsOk);
+        var tepConfigLoadedSample = resultLoadSample.Success;
         var jsonNodeLoadedSample = jsonStorage.LastJsonNodeLoaded;
 
         // Save loaded JSON in temp
         jsonStorage.FilePath = pathToSave;
-        var tepConfigLoadedSample = resultLoadSample.Success;
         var wasTepConfigLoadedSampleSavedInTemp = configStorage.Save(tepConfigLoadedSample) is null;
         Assert.True(wasTepConfigLoadedSampleSavedInTemp);
 
         // Load JSON from temp
         var resultLoadTemp = configStorage.Load();
         Assert.True(resultLoadTemp.IsOk);
+        var tepConfigLoadedTemp = resultLoadTemp.Success;
         var jsonNodeLoadedTemp = jsonStorage.LastJsonNodeLoaded;
 
         // Assert that both JSON contents are the same
         TestsUtils.CompareJsonNodes(jsonNodeLoadedSample, jsonNodeLoadedTemp);
+        Assert.Equal(tepConfigLoadedSample, tepConfigLoadedTemp);
     }
 }
