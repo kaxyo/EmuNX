@@ -1,4 +1,3 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
@@ -11,7 +10,6 @@ using ResultLoad = Result<TepConfig, LoadError>;
 
 /// <summary>
 /// Implements <see cref="TepConfig"/> to manage the configuration inside a <b>JSON</b> file.
-/// To change the <b>file path</b> after instantiation, please change <see cref="FilePath"/>.
 /// </summary>
 public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
 {
@@ -198,48 +196,33 @@ public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
 
     private static JsonObject? SerializeTitleExecutionPetition(TitleExecutionPetition tep)
     {
+        // Skip
         if (tep.IsEmpty)
             return null;
 
-        var root = new JsonObject()
-            .Set("emulator", new JsonObject()
-                .Set("family", TepEmulatorFamilyToJsonString(tep.EmulatorFamily))
-                .Set("runner", tep.EmulatorRunner))
-            .Set("user", new JsonObject()
-                .Set("prompt", TepUserPromptToJsonString(tep.UserPrompt)));
-
-        return root;
-    }
-
-    /// <summary>
-    /// Transforms an <see cref="TepEmulatorFamily"/> into a <c>string</c> with the required format for <c>title_execution.json</c>.
-    /// </summary>
-    /// <param name="family">The <see cref="TepEmulatorFamily"/> to transform into <c>string</c>.</param>
-    /// <returns>A <c>string</c> that represents a <see cref="TepEmulatorFamily"/> with the required format for <c>title_execution.json</c>.</returns>
-    private static string? TepEmulatorFamilyToJsonString(TepEmulatorFamily? family)
-    {
-        return family switch
+        // Serialize fields
+        var emulatorFamily = tep.EmulatorFamily switch
         {
             TepEmulatorFamily.Yuzu => "yuzu",
             TepEmulatorFamily.Ryujinx => "ryujinx",
             TepEmulatorFamily.Ask => "ask",
             _ => null
         };
-    }
 
-    /// <summary>
-    /// Transforms an <see cref="TepUserPrompt"/> into a <c>string</c> with the required format for <c>title_execution.json</c>.
-    /// </summary>
-    /// <param name="prompt">The <see cref="TepUserPrompt"/> to transform into <c>string</c>.</param>
-    /// <returns>A <c>string</c> that represents a <see cref="TepUserPrompt"/> with the required format for <c>title_execution.json</c>.</returns>
-    private static string? TepUserPromptToJsonString(TepUserPrompt? prompt)
-    {
-        return prompt switch
+        var userPrompt = tep.UserPrompt switch
         {
             TepUserPrompt.Ask => "ask",
             TepUserPrompt.None => "none",
             _ => null
         };
+
+        // Generate full TitleExecutionPetition
+        return new JsonObject()
+            .Set("emulator", new JsonObject()
+                .Set("family", emulatorFamily)
+                .Set("runner", tep.EmulatorRunner))
+            .Set("user", new JsonObject()
+                .Set("prompt", userPrompt));
     }
     #endregion
 }
