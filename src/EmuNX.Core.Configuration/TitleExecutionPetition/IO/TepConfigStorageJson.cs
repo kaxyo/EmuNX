@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
-using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 using Utils.Json;
+using Utils.Monad;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 
@@ -21,7 +21,7 @@ public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
         var result = jsonStorage.Load();
 
         if (result.IsErr)
-            return ResultLoad.Err(
+            return ResultLoad.Failure(
                 result.Error
                     ? LoadError.ResourceDeserializationFailed
                     : LoadError.ResourceAccessFailed
@@ -32,12 +32,12 @@ public class TepConfigStorageJson(JsonStorage jsonStorage) : ITepConfigStorage
 
         // {meta}: Validate Version
         if (LoadAndValidateMetaVersion(root) is { } error)
-            return ResultLoad.Err(error);
+            return ResultLoad.Failure(error);
 
         // From here, every TitleExecutionPetition will be parsed
         // Missing entries or properties will be set to null
         var config = new TepConfig();
-        var resultConfig = ResultLoad.Ok(config);
+        var resultConfig = ResultLoad.Success(config);
 
         // {data}: Load JsonElement with every TitleExecutionPetition
         if (root.Dig("data") is not { } dataElement)

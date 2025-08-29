@@ -1,9 +1,9 @@
-using EmuNX.Core.Common.Monad;
 using EmuNX.Core.Common.Types;
 using EmuNX.Core.Configuration.TitleExecutionPetition;
 using EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 using EmuNX.Core.Configuration.TitleExecutionPetition.Types;
 using Utils.Json;
+using Utils.Monad;
 
 namespace Tests.EmuNX.Core.Configuration.IO;
 
@@ -26,7 +26,7 @@ public class TepConfigStorageJsonTests
         var result = configStorage.Load();
 
         // Assert
-        Assert.Equal(Result<TepConfig, LoadError>.Err(expectedError), result);
+        Assert.Equal(Result<TepConfig, LoadError>.Failure(expectedError), result);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class TepConfigStorageJsonTests
         // Act
         var result = configStorage.Load();
         Assert.True(result.IsOk);
-        var config = result.Success;
+        var config = result.Ok;
 
         // Assert: Emulators.Global
         Assert.Equal(config.TepGlobal, new TitleExecutionPetition(
@@ -97,7 +97,7 @@ public class TepConfigStorageJsonTests
         jsonStorage.FilePath = pathToLoad;
         var resultLoadSample = configStorage.Load();
         Assert.True(resultLoadSample.IsOk);
-        var tepConfigLoadedSample = resultLoadSample.Success;
+        var tepConfigLoadedSample = resultLoadSample.Ok;
         var jsonNodeLoadedSample = jsonStorage.LastJsonNodeLoaded;
 
         // Save loaded JSON in temp
@@ -108,7 +108,7 @@ public class TepConfigStorageJsonTests
         // Load JSON from temp
         var resultLoadTemp = configStorage.Load();
         Assert.True(resultLoadTemp.IsOk);
-        var tepConfigLoadedTemp = resultLoadTemp.Success;
+        var tepConfigLoadedTemp = resultLoadTemp.Ok;
         var jsonNodeLoadedTemp = jsonStorage.LastJsonNodeLoaded;
 
         // Assert that both JSON contents are the same

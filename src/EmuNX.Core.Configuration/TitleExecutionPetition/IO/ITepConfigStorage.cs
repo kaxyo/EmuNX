@@ -1,4 +1,4 @@
-using EmuNX.Core.Common.Monad;
+using Utils.Monad;
 
 namespace EmuNX.Core.Configuration.TitleExecutionPetition.IO;
 
